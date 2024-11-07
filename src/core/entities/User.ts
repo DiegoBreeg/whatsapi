@@ -4,7 +4,7 @@ export interface UserProps
      * The unique identifier for the user.
      * @type { string }
      */
-    id: string;
+    id?: string;
 
     /**
      * The name of the user.
@@ -42,7 +42,7 @@ export class User
      * @readonly
      * @type { string }
      */
-    readonly #id: string;
+    readonly #id?: string;
 
     /**
      * The name of the user.
@@ -92,7 +92,7 @@ export class User
      */
     public get id()
     {
-        return this.#id;
+        return this.#id || new Error("Entity not persisted yet");
     }
 
     /**
@@ -162,15 +162,11 @@ export class User
 
 const user = new User(
     {
-        id: "1",
         name: "diego lucas",
         email: "diegobreeg@gmail.com",
-        hashedPassword:"segredo",
+        hashedPassword: "segredo",
         isActive: true
     })
 
 
-
-user.isActive = false
-
-console.log(user.id)
+console.log(user.id);
