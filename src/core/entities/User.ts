@@ -88,7 +88,7 @@ export class User
 
     /**
      * Get user id.
-     * @return { string }
+     * @returns { string }
      */
     public get id()
     {
@@ -97,7 +97,7 @@ export class User
 
     /**
      * Get user name.
-     * @return { string }
+     * @returns { string }
      */
     public get name()
     {
@@ -106,7 +106,7 @@ export class User
 
     /**
      * Get user email.
-     * @return { string }
+     * @returns { string }
      */
     public get email()
     {
@@ -115,7 +115,7 @@ export class User
 
     /**
      * Get user hashedPassword.
-     * @return { string }
+     * @returns { string }
      */
     public get hashedPassword()
     {
@@ -124,7 +124,7 @@ export class User
 
     /**
      * Get user isActive.
-     * @return { boolean }
+     * @returns { boolean }
      */
     public get isActive()
     {
@@ -158,7 +158,6 @@ export class User
         this.#isActive = isActive;
     }
 }
-
 
 const user = new User(
     {
