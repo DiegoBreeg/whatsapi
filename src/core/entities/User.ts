@@ -98,7 +98,7 @@ export class User
     {
         this.#id = userProps.id;
         this.#tenantId = userProps.tenantId;
-        this.#name = userProps.name;
+        this.#name = this.validateName(userProps.name);
         this.#email = userProps.email;
         this.#hashedPassword = userProps.hashedPassword
         this.#isActive = userProps.isActive
@@ -159,12 +159,12 @@ export class User
     }
 
     /**
-     * Set user Name.
+     * Set user's Name.
      * @param { string } name - The name of the user.
      */
     public set name(name: string)
     {
-        this.#name = name;
+        this.#name = this.validateName(name);
     }
 
     /**
@@ -184,4 +184,37 @@ export class User
     {
         this.#isActive = isActive;
     }
+
+    /**
+     * This method trims the input, removes any invalid characters (non-letter characters),
+     * and ensures the name is in uppercase. If the cleaned name is empty, an error is thrown.
+     * 
+     * @param { string } name - The name of the user.
+     * @throws { Error } If the cleaned name is empty after trimming and removing invalid characters.
+     */
+    private validateName(name: string): string
+    {
+        const cleanedName = name
+            .trim()
+            .replace(/[^a-zA-Zà-üÀ-Ü\s]/g, '')
+            .toUpperCase();
+
+        if (cleanedName.length === 0)
+            throw new Error("Name must contain at least one valid character");
+        return cleanedName;
+    }
 }
+
+
+const userProps: UserProps = 
+{
+    id: "1",
+    tenantId: "1",
+    name: "d1i3eg0o",
+    email: "diego@email.com",
+    hashedPassword: "123456",
+    isActive: true
+}
+const user = new User(userProps)
+
+console.log(user.name)
