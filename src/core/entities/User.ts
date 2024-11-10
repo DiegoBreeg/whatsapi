@@ -1,19 +1,26 @@
 export interface UserProps
 {
     /**
-     * The unique identifier for the user.
+     * The unique identifier for the user entitie.
      * @type { string }
      */
-    id?: string;
+    id: string;
 
     /**
-     * The name of the user.
+     * The unique identifier for the tenant (or company) to which the user belongs.
+     * Used for multi-tenant systems to segregate data by company.
+     * @type { string }
+     */
+    tenantId: string;
+
+    /**
+     * The name of the user entitie.
      * @type { string }
      */
     name: string;
 
     /**
-     * The email address of the user.
+     * The email address of the user entitie.
      * @type { string }
      */
     email: string;
@@ -29,6 +36,7 @@ export interface UserProps
      * @type { boolean }
      */
     isActive: boolean;
+
 }
 
 /**
@@ -37,22 +45,31 @@ export interface UserProps
 export class User
 {
     /**
-     * The unique identifier for the user.
+     * The unique identifier for the user entitie.
      * @private 
      * @readonly
      * @type { string }
      */
-    readonly #id?: string;
+    readonly #id: string;
 
     /**
-     * The name of the user.
+     * The unique identifier for the tenant (or company) to which the user belongs.
+     * Used for multi-tenant systems to segregate data by company.
+     * @private 
+     * @readonly
+     * @type { string }
+     */
+    readonly #tenantId: string;
+
+    /**
+     * The name of the user entitie.
      * @private
      * @type { string }
      */
     #name: string;
 
     /**
-     * The email addres of the user.
+     * The email addres of the user entitie.
      * @private
      * @readonly
      * @type { string }
@@ -60,7 +77,7 @@ export class User
     readonly #email: string;
 
     /**
-     * The hashed password of the user to login.
+     * The hashed password of the user entitie to login.
      * @private
      * @type { string }
      */
@@ -75,11 +92,12 @@ export class User
 
     /**
      * Creates a new User instance with provided properties.
-     * @param { UserProps } - The properties to initialize the User.
+     * @param { UserProps } userProps - The properties to initialize the User.
      */
     constructor(userProps: UserProps)
     {
         this.#id = userProps.id;
+        this.#tenantId = userProps.tenantId;
         this.#name = userProps.name;
         this.#email = userProps.email;
         this.#hashedPassword = userProps.hashedPassword
@@ -92,7 +110,16 @@ export class User
      */
     public get id()
     {
-        return this.#id || new Error("Entity not persisted yet");
+        return this.#id;
+    }
+
+    /**
+     * get the unique identifier for the tenant (or company) to which the user belongs.
+     * @returns { string }
+     */
+    public get tenantId()
+    {
+        return this.#tenantId;
     }
 
     /**
@@ -158,14 +185,3 @@ export class User
         this.#isActive = isActive;
     }
 }
-
-const user = new User(
-    {
-        name: "diego lucas",
-        email: "diegobreeg@gmail.com",
-        hashedPassword: "segredo",
-        isActive: true
-    })
-
-
-console.log(user.id);
