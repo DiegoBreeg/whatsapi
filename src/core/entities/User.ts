@@ -99,9 +99,9 @@ export class User
         this.#id = userProps.id;
         this.#tenantId = userProps.tenantId;
         this.#name = this.validateName(userProps.name);
-        this.#email = userProps.email;
-        this.#hashedPassword = userProps.hashedPassword
-        this.#isActive = userProps.isActive
+        this.#email = this.validateEmail(userProps.email);
+        this.#hashedPassword = userProps.hashedPassword;
+        this.#isActive = userProps.isActive;
     }
 
     /**
@@ -203,18 +203,21 @@ export class User
             throw new Error("Name must contain at least one valid character");
         return cleanedName;
     }
+
+    /**
+     * Validate the email format.
+     * Uses a regex pattern to ensure the email follows common email standards.
+     * @param { string } email - The email to validate.
+     * @returns { string } - The validated email.
+     * @throws { Error } If the email format is invalid.
+     */
+    private validateEmail(email: string): string
+    {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailRegex.test(email))        
+            throw new Error("Invalid email format");
+        
+        return email;
+    }
 }
-
-
-const userProps: UserProps = 
-{
-    id: "1",
-    tenantId: "1",
-    name: "d1i3eg0o",
-    email: "diego@email.com",
-    hashedPassword: "123456",
-    isActive: true
-}
-const user = new User(userProps)
-
-console.log(user.name)

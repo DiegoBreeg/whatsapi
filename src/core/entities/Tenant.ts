@@ -116,8 +116,8 @@ export class Tenant
     constructor(tenantProps: TenantProps)
     {
         this.#id = tenantProps.id;
-        this.#name = tenantProps.name;
-        this.#email = tenantProps.email;
+        this.#name = this.validateName(tenantProps.name);
+        this.#email = this.validateEmail(tenantProps.email);
         this.#isActive = tenantProps.isActive;
         this.#planId = tenantProps.planId;
         this.#subscriptionStartDate = tenantProps.subscriptionStartDate;
@@ -199,22 +199,11 @@ export class Tenant
 
     /**
      * Set the tenant's name.
-     * This method trims the input, removes any invalid characters (non-letter characters),
-     * and ensures the name is in uppercase. If the cleaned name is empty, an error is thrown.
      * @param { string } name - The name of Tenant.
-     * @throws { Error } If the cleaned name is empty after trimming and removing invalid characters.
      */
     public set name(name: string)
     {
-        const cleanedName = name
-            .trim()
-            .replace(/[^a-zA-Zà-üÀ-Ü\s]/g, '')
-            .toUpperCase();
-
-        if (cleanedName.length === 0)
-            throw new Error("Name must contain at least one valid character");
-
-        this.#name = cleanedName;
+        this.#name = this.validateName(name);
     }
 
     /**
@@ -277,5 +266,41 @@ export class Tenant
         if (userLimit <= 0)
             throw new Error("User limit must be a positive number greater than 0");
         this.#userLimit = userLimit;
+    }
+
+    /**
+     * This method trims the input, removes any invalid characters (non-letter characters),
+     * and ensures the name is in uppercase. If the cleaned name is empty, an error is thrown.
+     * 
+     * @param { string } name - The name of the tenant.
+     * @throws { Error } If the cleaned name is empty after trimming and removing invalid characters.
+     */
+    private validateName(name: string): string
+    {
+        const cleanedName = name
+            .trim()
+            .replace(/[^a-zA-Zà-üÀ-Ü\s]/g, '')
+            .toUpperCase();
+
+        if (cleanedName.length === 0)
+            throw new Error("Name must contain at least one valid character");
+        return cleanedName;
+    }
+
+    /**
+     * Validate the email format.
+     * Uses a regex pattern to ensure the email follows common email standards.
+     * @param { string } email - The email to validate.
+     * @returns { string } - The validated email.
+     * @throws { Error } If the email format is invalid.
+     */
+    private validateEmail(email: string): string
+    {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailRegex.test(email))        
+            throw new Error("Invalid email format");
+        
+        return email;
     }
 }
