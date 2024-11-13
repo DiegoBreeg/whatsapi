@@ -190,6 +190,7 @@ export class User
      * and ensures the name is in uppercase. If the cleaned name is empty, an error is thrown.
      * 
      * @param { string } name - The name of the user.
+     * @returns { string } - the validated user name.
      * @throws { Error } If the cleaned name is empty after trimming and removing invalid characters.
      */
     private validateName(name: string): string

@@ -120,9 +120,9 @@ export class Tenant
         this.#email = this.validateEmail(tenantProps.email);
         this.#isActive = tenantProps.isActive;
         this.#planId = tenantProps.planId;
-        this.#subscriptionStartDate = tenantProps.subscriptionStartDate;
-        this.#subscriptionEndDate = tenantProps.subscriptionEndDate;
-        this.#userLimit = tenantProps.userLimit;
+        this.#subscriptionStartDate = this.validateSubscriptionStartDate(tenantProps.subscriptionStartDate);
+        this.#subscriptionEndDate = this.validateSubscriptionEndDate(tenantProps.subscriptionEndDate);
+        this.#userLimit = this.validateUserLimit(tenantProps.userLimit);
     }
 
     /**
@@ -207,7 +207,7 @@ export class Tenant
     }
 
     /**
-     * Set tenant isActive
+     * Set tenant isActive.
      * @param { boolean } isActive - Indicates whether the user account is active.
      */
     public set isActive(isActive: boolean)
@@ -216,7 +216,7 @@ export class Tenant
     }
 
     /**
-     * Set tenant planId
+     * Set tenant planId.
      * @param { string } planId  - The unique identifier for the plan or subscription the tenant is using.
      */
     public set planId(planId: string)
@@ -226,46 +226,29 @@ export class Tenant
 
     /**
      * Set the tenant's subscription start date.
-     * This method checks that the provided start date is earlier than the subscription end date.
-     * If the start date is later than the end date, an error is thrown.
-     * 
-     * @param { Date } subscriptionStartDate  - The start date of the tenant's subscription or service.
-     * @throws { Error } If the subscription start date is later than the subscription end date.
+     * @param { Date } subscriptionStartDate  - The start date of the tenant's subscription or service.  
      */
     public set subscriptionStartDate(subscriptionStartDate: Date)
     {
-        if (subscriptionStartDate > this.#subscriptionEndDate)
-            throw new Error("Subscription start date must be less than subscription end date");
-        this.#subscriptionStartDate = subscriptionStartDate;
+        this.#subscriptionStartDate = this.validateSubscriptionStartDate(subscriptionStartDate);
     }
 
     /**
      * Set the tenant's subscription end date.
-     * This method ensures that the subscription end date is greater than the subscription start date.
-     * If the provided subscription end date is earlier than the start date, an error is thrown.
-     * 
      * @param { Date } subscriptionEndDate - The end date of the tenant's subscription or service.
-     * @throws {Error} If the subscription end date is earlier than the subscription start date.
      */
     public set subscriptionEndDate(subscriptionEndDate: Date)
     {
-        if (subscriptionEndDate < this.#subscriptionStartDate)
-            throw new Error("Subscription end date must be greater than subscription start date");
-        this.#subscriptionEndDate = subscriptionEndDate;
+        this.#subscriptionEndDate = this.validateSubscriptionEndDate(subscriptionEndDate);
     }
 
     /**
      * Set the tenant's user limit.
-     * This method ensures that the user limit is a positive number greater than 0.
-     * If the provided user limit is less than or equal to 0, an error is thrown.
      * @param { number } userLimit - The number of users the tenant is allowed to have.
-     * @throws { Error } If the user limit is less than or equal to 0.
      */
     public set userLimit(userLimit: number)
     {
-        if (userLimit <= 0)
-            throw new Error("User limit must be a positive number greater than 0");
-        this.#userLimit = userLimit;
+        this.#userLimit = this.validateUserLimit(userLimit);
     }
 
     /**
@@ -273,6 +256,7 @@ export class Tenant
      * and ensures the name is in uppercase. If the cleaned name is empty, an error is thrown.
      * 
      * @param { string } name - The name of the tenant.
+     * @returns { string } - The validated name.
      * @throws { Error } If the cleaned name is empty after trimming and removing invalid characters.
      */
     private validateName(name: string): string
@@ -298,9 +282,51 @@ export class Tenant
     {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        if (!emailRegex.test(email))        
+        if (!emailRegex.test(email))
             throw new Error("Invalid email format");
-        
+
         return email;
+    }
+
+    /**
+     * This method checks that the provided start date is earlier than the subscription end date.
+     * If the start date is later than the end date, an error is thrown.
+     * @param { Date } subscriptionStartDate  - The start date of the tenant's subscription or service.
+     * @returns { Date } - The validated subscriptionStartDate.
+     * @throws { Error } If the subscription start date is later than the subscription end date.
+     */
+    private validateSubscriptionStartDate(subscriptionStartDate: Date)
+    {
+        if (subscriptionStartDate > this.#subscriptionEndDate)
+            throw new Error("Subscription start date must be less than subscription end date");
+        return subscriptionStartDate;
+    }
+
+    /**
+     * This method ensures that the subscription end date is greater than the subscription start date.
+     * If the provided subscription end date is earlier than the start date, an error is thrown. 
+     * @param { Date } subscriptionEndDate - The end date of the tenant's subscription or service.
+     * @returns { Date } - The validated subscriptionEndDate.
+     * @throws {Error} If the subscription end date is earlier than the subscription start date.
+     */
+    private validateSubscriptionEndDate(subscriptionEndDate: Date)
+    {
+        if (subscriptionEndDate < this.#subscriptionStartDate)
+            throw new Error("Subscription end date must be greater than subscription start date");
+        return subscriptionEndDate;
+    }
+
+    /**
+     * This method ensures that the user limit is a positive number greater than 0.
+     * If the provided user limit is less than or equal to 0, an error is thrown.
+     * @param { number } userLimit - The number of users the tenant is allowed to have.
+     * @returns { number } - The validated userLimit number.
+     * @throws { Error } If the user limit is less than or equal to 0.
+     */
+    private validateUserLimit(userLimit: number)
+    {
+        if (userLimit <= 0)
+            throw new Error("User limit must be a positive number greater than 0");
+        return userLimit;
     }
 }
