@@ -127,7 +127,7 @@ userRepository.save(user3)
 
 async function exemplo()
 {
-    const data =  await userRepository.findAll({cursor: "019345b8-db71-7b5b-893a-d4b75dfd51c3", limit: 1});
+    const data =  await userRepository.findAll({});
     data.forEach(user => console.log(user.name))
     
 }
