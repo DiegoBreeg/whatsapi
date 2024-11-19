@@ -9,9 +9,9 @@ export interface UserRepository
     /**
      * Finds a user by their unique identifier.
      * @param { string } id - The unique identifier of the user.
-     * @returns { Promise<User | null> } - A promise that resolves to the User entitie if found, or null if not found.
+     * @returns { Promise<User | void> } - A promise that resolves to the User entitie if found, or null if not found.
      */
-    findById(id: string): Promise<User | null>;
+    findById(id: string): Promise<User | void>;
 
     /**
      * Saves a new user to the repository.
@@ -36,11 +36,10 @@ export interface UserRepository
 
     /**
      * Retrieves a paginated list of users based on a cursor.
-     * @param { string } cursor - The ID of the last user from the previous page.
-     * @param { number } limit - The maximum number of users to retrieve.
+     * @param { FindAllParams } params - Object containing the cursor and limit for pagination.
      * @returns  { Promise<User[]> } - A promise that resolves to an array of User entities.
      */
-    findAll(cursor: string, limit: number): Promise<User[]>;
+    findAll({ cursor, limit }: { cursor: string, limit: number }): Promise<User[]>;
 
     /**
      * Retrieves a paginated list of users for a given tenant, based on a cursor for pagination.

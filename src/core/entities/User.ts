@@ -20,10 +20,10 @@ export interface UserProps
     name: string;
 
     /**
-     * The email address of the user entitie.
+     * The login of user.
      * @type { string }
      */
-    email: string;
+    login: string;
 
     /**
      * The hashed password of the user to login.
@@ -69,12 +69,12 @@ export class User
     #name: string;
 
     /**
-     * The email addres of the user entitie.
+     * The login of the user entitie.
      * @private
      * @readonly
      * @type { string }
      */
-    readonly #email: string;
+    readonly #login: string;
 
     /**
      * The hashed password of the user entitie to login.
@@ -98,8 +98,8 @@ export class User
     {
         this.#id = userProps.id;
         this.#tenantId = userProps.tenantId;
-        this.#name = this.validateName(userProps.name);
-        this.#email = this.validateEmail(userProps.email);
+        this.#name = userProps.name;
+        this.#login = userProps.login;
         this.#hashedPassword = userProps.hashedPassword;
         this.#isActive = userProps.isActive;
     }
@@ -132,12 +132,12 @@ export class User
     }
 
     /**
-     * Get user email.
+     * Get user login.
      * @returns { string }
      */
-    public get email()
+    public get login()
     {
-        return this.#email;
+        return this.#login;
     }
 
     /**
@@ -164,7 +164,7 @@ export class User
      */
     public set name(name: string)
     {
-        this.#name = this.validateName(name);
+        this.#name = name
     }
 
     /**
@@ -183,42 +183,5 @@ export class User
     public set isActive(isActive: boolean)
     {
         this.#isActive = isActive;
-    }
-
-    /**
-     * This method trims the input, removes any invalid characters (non-letter characters),
-     * and ensures the name is in uppercase. If the cleaned name is empty, an error is thrown.
-     * 
-     * @param { string } name - The name of the user.
-     * @returns { string } - the validated user name.
-     * @throws { Error } If the cleaned name is empty after trimming and removing invalid characters.
-     */
-    private validateName(name: string): string
-    {
-        const cleanedName = name
-            .trim()
-            .replace(/[^a-zA-Zà-üÀ-Ü\s]/g, '')
-            .toUpperCase();
-
-        if (cleanedName.length === 0)
-            throw new Error("Name must contain at least one valid character");
-        return cleanedName;
-    }
-
-    /**
-     * Validate the email format.
-     * Uses a regex pattern to ensure the email follows common email standards.
-     * @param { string } email - The email to validate.
-     * @returns { string } - The validated email.
-     * @throws { Error } If the email format is invalid.
-     */
-    private validateEmail(email: string): string
-    {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-        if (!emailRegex.test(email))        
-            throw new Error("Invalid email format");
-        
-        return email;
-    }
+    }    
 }
