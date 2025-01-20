@@ -1,21 +1,5 @@
-import makeWASocket, { useMultiFileAuthState } from "@whiskeysockets/baileys"
+import { WhatsappConnectionManagerBeileys } from "./infrastructure/services/WhatsappConnectionManagerBeileys"
 
-async function connecToWhatsApp() {
-    const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
-    const sock = makeWASocket({
-        auth: state,
-        printQRInTerminal: false,
+const waManager = new WhatsappConnectionManagerBeileys();
 
-    })
-
-    sock.ev.on('connection.update', async (update) => {
-        const { qr } = update
-        if(qr) {
-            console.log(qr);
-        }
-    })
-
-    sock.ws.close()
-}
-
-connecToWhatsApp()
+waManager.connectToWhatsapp();
