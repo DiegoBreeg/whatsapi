@@ -1,21 +1,49 @@
-import makeWASocket, { useMultiFileAuthState } from "@whiskeysockets/baileys";
+import makeWASocket, { DisconnectReason, useMultiFileAuthState, AuthenticationState, WASocket } from "@whiskeysockets/baileys";
 import { WhatsappConnectionManager } from "../../core/services/WhatsappConnectionManager";
-import QRCode from 'qrcode'
-import * as qrcode from 'qrcode-terminal'; 
+import { Boom } from '@hapi/boom';
+import QRCode from 'qrcode';
+import fs from 'fs';
 
 export class WhatsappConnectionManagerBeileys implements WhatsappConnectionManager {
 
-    async connectToWhatsapp(): Promise<void> {
-        const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys')
+    async connectToWhatsApp(userId: string): Promise<void> {
+        const { state, saveCreds } = await useMultiFileAuthState(`auth_info_baileys_${userId}`);
         const sock = makeWASocket({
-            // can provide additional config here
             auth: state,
-            printQRInTerminal: true
-        })
+            printQRInTerminal: false,
+        });
+        
+        sock.ev.on("connection.update", async (update) => {
+            const { connection, lastDisconnect, qr } = update;
 
-        sock.ev.on('creds.update', saveCreds)
+            if (qr) {
+                const qrCodeBase64 = await QRCode.toDataURL(qr);
+                console.log(`QR Code para usuário ${userId}:`, qrCodeBase64);
+            }
 
+            if (connection === "close") {
+                const reason = (lastDisconnect?.error as Boom)?.output?.statusCode;
+                console.log(`Conexão encerrada para usuário ${userId}. Motivo:`, DisconnectReason[reason] || reason);
+
+                if (reason === DisconnectReason.loggedOut) {
+                    console.log(`Logout detectado para usuário ${userId}. Limpando dados de autenticação...`);
+                    this.disconnect(userId);
+                    return;
+                }
+
+                const shouldReconnect = reason !== DisconnectReason.loggedOut;
+                if (shouldReconnect) {
+                    console.log(`Reconectando para usuário ${userId}...`);
+                    await this.connectToWhatsApp(userId);
+                }
+            } else if (connection === "open") {
+                console.log(`Conexão estabelecida com sucesso para usuário ${userId}.`);
+            }
+        });
+
+        sock.ev.on("creds.update", saveCreds);
     }
+
 
     disconnect(): void {
         throw new Error("Method not implemented.");

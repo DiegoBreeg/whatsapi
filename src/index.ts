@@ -1,5 +1,5 @@
-import { WhatsappConnectionManagerBeileys } from "./infrastructure/services/WhatsappConnectionManagerBeileys"
+import { WhatsappConnectionManagerBeileys } from "./infrastructure/services/WhatsappConnectionManagerBeileys";
 
-const waManager = new WhatsappConnectionManagerBeileys();
+const wa = new WhatsappConnectionManagerBeileys()
 
-waManager.connectToWhatsapp();
+wa.connectToWhatsApp();

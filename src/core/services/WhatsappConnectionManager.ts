@@ -1,5 +1,5 @@
 export interface WhatsappConnectionManager {
-    connectToWhatsapp(): void;
+    connectToWhatsApp(userId: string): void;
     disconnect(): void;
     registerEventListeners(): void;
     removeAllListeners(): void;
