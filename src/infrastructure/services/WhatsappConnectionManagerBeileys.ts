@@ -1,42 +1,62 @@
 import makeWASocket, { DisconnectReason, useMultiFileAuthState, AuthenticationState, WASocket } from "@whiskeysockets/baileys";
-import { WhatsappConnectionManager } from "../../core/services/WhatsappConnectionManager";
+import { WhatsAppConnectionManagerService } from "../../core/services/WhatsAppConnectionManagerService";
 import { Boom } from '@hapi/boom';
 import QRCode from 'qrcode';
 import fs from 'fs';
+import { WhatsAppSocketRepository } from "../../core/repositories/WhatsAppSocketRepository";
+import { WhatsAppSocket } from "../../core/entities/WhatsAppSocket";
 
-export class WhatsappConnectionManagerBeileys implements WhatsappConnectionManager {
+export class WhatsappConnectionManagerBeileys implements WhatsAppConnectionManagerService {
+    #whatsAppSocketRepository: WhatsAppSocketRepository
 
-    async connectToWhatsApp(): Promise<void> {
-        const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys')
+    constructor(whatsAppSocketRepository: WhatsAppSocketRepository) {
+        this.#whatsAppSocketRepository = whatsAppSocketRepository;
+    }
+
+    async connectToWhatsApp(socketId: string): Promise<any | void> {
+        const { state, saveCreds } = await useMultiFileAuthState(`connections/${socketId}/`)
         const sock = makeWASocket({
             auth: state,
-            printQRInTerminal: true
-        })
+            printQRInTerminal: false,
+        });
 
-        sock.ev.on('connection.update', (update) => {
-            const { connection, lastDisconnect } = update
-            console.log(update);
-            if(connection === 'close') {
-                const disconnectReason = (lastDisconnect?.error as Boom)?.output?.statusCode
-                console.log(`[disconnectReason] ${disconnectReason}`)
+        const whatsAppSocket = new WhatsAppSocket({
+            socketId,
+            socket: sock,
+            state: 'connecting' })
+        this.#whatsAppSocketRepository.save(whatsAppSocket);
 
-                if(disconnectReason !== DisconnectReason.loggedOut) {
-                    this.connectToWhatsApp()
+        sock.ev.on('connection.update', async (update) => {
+            const { connection, lastDisconnect, qr } = update;
+
+            if (qr) {
+                const qrCodeDataURL = await QRCode.toDataURL(qr);
+                const existingSocket = this.#whatsAppSocketRepository.find(socketId)
+
+                if(existingSocket) {
+                    existingSocket.qrcode = qrCodeDataURL;
+                    existingSocket.state = 'connecting';
+                    this.#whatsAppSocketRepository.update(existingSocket.socketId, existingSocket);
                 }
-            } else if(connection === 'open') {
-                console.log('opened connection')
             }
-        })
 
-        sock.ev.on('messages.upsert', event => {
-            event.messages.forEach(message => {
-                console.log(message.message?.conversation)
-                sock.ws.close();
+            if (connection === 'close') {
+                const disconnectReason = (lastDisconnect?.error as Boom)?.output?.statusCode;
 
-            })
-        })
+                if (disconnectReason === DisconnectReason.loggedOut) {
+                    sock.logout();
+                    this.#whatsAppSocketRepository.remove(socketId);
+                    fs.rmSync(`./connections/${socketId}`, { recursive: true });
+                }
 
-        sock.ev.on('creds.update', saveCreds)
+                if (disconnectReason !== DisconnectReason.loggedOut) {
+                    await this.connectToWhatsApp(socketId);
+                }
+            }
+        });
+
+        sock.ev.on('creds.update', saveCreds);
+
     }
 
 
