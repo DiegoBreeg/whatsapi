@@ -1,19 +1,19 @@
 import makeWASocket, { DisconnectReason, useMultiFileAuthState, AuthenticationState, WASocket } from "@whiskeysockets/baileys";
-import { WhatsAppConnectionManagerService } from "../../core/services/WhatsAppConnectionManagerService";
+import { WhatsAppSocketManagerService } from "../../core/services/WhatsAppSocketManagerService";
 import { Boom } from '@hapi/boom';
 import QRCode from 'qrcode';
 import fs from 'fs';
 import { WhatsAppSocketRepository } from "../../core/repositories/WhatsAppSocketRepository";
 import { WhatsAppSocket } from "../../core/entities/WhatsAppSocket";
 
-export class WhatsappConnectionManagerBeileys implements WhatsAppConnectionManagerService {
+export class WhatsappSocketManagerBeileys implements WhatsAppSocketManagerService {
     #whatsAppSocketRepository: WhatsAppSocketRepository
 
     constructor(whatsAppSocketRepository: WhatsAppSocketRepository) {
         this.#whatsAppSocketRepository = whatsAppSocketRepository;
     }
 
-    async connectToWhatsApp(socketId: string): Promise<any | void> {
+    async connect(socketId: string): Promise<any | void> {
         const { state, saveCreds } = await useMultiFileAuthState(`connections/${socketId}/`)
         const sock = makeWASocket({
             auth: state,
@@ -23,20 +23,32 @@ export class WhatsappConnectionManagerBeileys implements WhatsAppConnectionManag
         const whatsAppSocket = new WhatsAppSocket({
             socketId,
             socket: sock,
-            state: 'connecting' })
+            state: 'connecting'
+        })
         this.#whatsAppSocketRepository.save(whatsAppSocket);
 
         sock.ev.on('connection.update', async (update) => {
             const { connection, lastDisconnect, qr } = update;
 
+            if (connection === 'open') {
+                const existingSocket = this.#whatsAppSocketRepository.find(socketId)
+
+                if (existingSocket) {
+                    existingSocket.state = 'open';
+                    this.#whatsAppSocketRepository.update(existingSocket.socketId, existingSocket);
+                    return;
+                }
+            }
+
             if (qr) {
                 const qrCodeDataURL = await QRCode.toDataURL(qr);
                 const existingSocket = this.#whatsAppSocketRepository.find(socketId)
 
-                if(existingSocket) {
+                if (existingSocket) {
                     existingSocket.qrcode = qrCodeDataURL;
                     existingSocket.state = 'connecting';
                     this.#whatsAppSocketRepository.update(existingSocket.socketId, existingSocket);
+                    return;
                 }
             }
 
@@ -44,13 +56,11 @@ export class WhatsappConnectionManagerBeileys implements WhatsAppConnectionManag
                 const disconnectReason = (lastDisconnect?.error as Boom)?.output?.statusCode;
 
                 if (disconnectReason === DisconnectReason.loggedOut) {
-                    sock.logout();
-                    this.#whatsAppSocketRepository.remove(socketId);
-                    fs.rmSync(`./connections/${socketId}`, { recursive: true });
+                    this.disconnect(socketId);
                 }
 
                 if (disconnectReason !== DisconnectReason.loggedOut) {
-                    await this.connectToWhatsApp(socketId);
+                    await this.connect(socketId);
                 }
             }
         });
@@ -59,9 +69,13 @@ export class WhatsappConnectionManagerBeileys implements WhatsAppConnectionManag
 
     }
 
-
-    disconnect(): void {
-        throw new Error("Method not implemented.");
+    disconnect(socketId: string): void {
+        const existingSocket = this.#whatsAppSocketRepository.find(socketId)
+        if (existingSocket) {
+            existingSocket.socket.logout();
+            this.#whatsAppSocketRepository.remove(existingSocket.socketId);
+            fs.rmSync(`./connections/${socketId}`, { recursive: true });
+        }
     }
 
     registerEventListeners(): void {

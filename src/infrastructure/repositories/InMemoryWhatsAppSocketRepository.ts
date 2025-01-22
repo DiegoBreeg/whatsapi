@@ -33,10 +33,8 @@ export class InMemoryWhatsAppSocketRepository implements WhatsAppSocketRepositor
 
             existingSocket.state = whatsAppSocket.state? whatsAppSocket.state: existingSocket.state;
             existingSocket.qrcode = whatsAppSocket.qrcode? whatsAppSocket.qrcode: existingSocket.qrcode;
-            this.sockets.set(socketId, existingSocket);            
+            this.sockets.set(socketId, existingSocket);
         }
-
-
     }
 
     public remove(socketId: string): void {
@@ -45,5 +43,9 @@ export class InMemoryWhatsAppSocketRepository implements WhatsAppSocketRepositor
 
     public getAll(): WhatsAppSocket[] {
         return Array.from(this.sockets.values());
+    }
+
+    public async exists(socketId: string): Promise<boolean> {
+        return this.sockets.has(socketId);
     }
 }

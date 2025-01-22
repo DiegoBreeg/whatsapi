@@ -6,4 +6,5 @@ export interface WhatsAppSocketRepository {
     update(socketId: string, whatsAppSocket: Partial<WhatsAppSocket>): void;
     remove(socketId: string): void;
     getAll(): WhatsAppSocket[];
+    exists(socketId: string): Promise<boolean>;
 }
