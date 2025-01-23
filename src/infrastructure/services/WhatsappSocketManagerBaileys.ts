@@ -41,7 +41,8 @@ export class WhatsappSocketManagerBaileys implements WhatsAppSocketManagerServic
         } else if (qr) {
             await this.handleQRUpdate(socketId, qr);
         } else if (connection === 'close') {
-            await this.handleConnectionClose(socketId, lastDisconnect);
+            const disconnectReason = (lastDisconnect?.error as Boom)?.output?.statusCode;
+            await this.handleConnectionClose(socketId, disconnectReason);
         }
     }
 
@@ -63,16 +64,10 @@ export class WhatsappSocketManagerBaileys implements WhatsAppSocketManagerServic
         }
     }
 
-    private async handleConnectionClose(socketId: string, lastDisconnect: {
-        error: Error | undefined;
-        date: Date;
-    } | undefined): Promise<void> {
-        const disconnectReason = (lastDisconnect?.error as Boom)?.output?.statusCode;
+    private async handleConnectionClose(socketId: string, disconnectReason: number): Promise<void> {
         const existingSocket = this.#whatsAppSocketRepository.find(socketId)
 
-        if (existingSocket) {
-
-        }
+        console.log(existingSocket?.socket.ws.eventNames())
 
         if (disconnectReason === DisconnectReason.loggedOut && existingSocket) {
             this.#whatsAppSocketRepository.remove(existingSocket.socketId);
@@ -89,8 +84,7 @@ export class WhatsappSocketManagerBaileys implements WhatsAppSocketManagerServic
 
     async disconnect(socket: WASocket): Promise<void> {
         socket.end(undefined);
-        socket.ev.process
-        
+        socket.ws.removeAllListeners();
     }
 
     registerEventListeners(): void {
