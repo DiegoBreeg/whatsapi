@@ -3,14 +3,14 @@ import makeWASocket, { DisconnectReason, useMultiFileAuthState, AuthenticationSt
 export type WhatsAppSocketParams = {
     socketId: string;
     socket: WASocket;
-    state: 'open' | 'close' | 'connecting' | 'disconnected';
+    state: 'open' | 'close' | 'connecting' | 'disconnected' | 'restarting';
     qrcode?: string | undefined;
 }
 
 export class WhatsAppSocket {
     #socketId: string;
     #socket: WASocket;
-    #state: 'open' | 'close' | 'connecting' | 'disconnected';
+    #state: 'open' | 'close' | 'connecting' | 'disconnected' | 'restarting';
     #qrcode?: string | undefined;
 
     constructor(whatsAppParams: WhatsAppSocketParams) {
@@ -32,9 +32,9 @@ export class WhatsAppSocket {
         return this.#state;
     }
 
-    set state(value: 'open' | 'close' | 'connecting' | 'disconnected') {
+    set state(value: 'open' | 'close' | 'connecting' | 'disconnected' | 'restarting') {
 
-        if (!['open', 'close', 'connecting', 'disconnected'].includes(value)) {
+        if (!['open', 'close', 'connecting', 'disconnected', 'restarting'].includes(value)) {
             throw new Error('Estado inválido para o socket');
         }
         this.#state = value;

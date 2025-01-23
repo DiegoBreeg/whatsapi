@@ -1,7 +1,7 @@
 import { CustomError } from "./core/errors/CustomError";
 import { ConnectToWhatsAppUseCase } from "./core/useCaes/ConnectToWhatsAppUseCase";
 import { InMemoryWhatsAppSocketRepository } from "./infrastructure/repositories/InMemoryWhatsAppSocketRepository";
-import { WhatsappSocketManagerBeileys } from "./infrastructure/services/WhatsappSocketManagerBeileys";
+import { WhatsappSocketManagerBaileys } from "./infrastructure/services/WhatsappSocketManagerBaileys";
 import express from 'express';
 
 
@@ -18,7 +18,7 @@ app.use(express.json());
             const { socketId } = req.body
 
             const repository = InMemoryWhatsAppSocketRepository.getInstance()
-            const wam = new WhatsappSocketManagerBeileys(repository)
+            const wam = new WhatsappSocketManagerBaileys(repository)
             const connectToWhatsAppUseCase = new ConnectToWhatsAppUseCase(repository, wam)
             await connectToWhatsAppUseCase.execute(socketId)
 
