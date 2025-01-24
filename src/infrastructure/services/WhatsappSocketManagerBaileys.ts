@@ -57,7 +57,7 @@ export class WhatsappSocketManagerBaileys implements WhatsAppSocketManagerServic
     private async handleQRUpdate(socketId: string, qr: string): Promise<void> {
         const qrCodeDataURL = await QRCode.toDataURL(qr);
         const existingSocket = this.#whatsAppSocketRepository.find(socketId)
-        if (existingSocket && existingSocket.state !== 'close') {
+        if (existingSocket) {
             existingSocket.qrcode = qrCodeDataURL;
             existingSocket.state = 'connecting';
             this.#whatsAppSocketRepository.update(existingSocket.socketId, existingSocket);
@@ -67,16 +67,13 @@ export class WhatsappSocketManagerBaileys implements WhatsAppSocketManagerServic
     private async handleConnectionClose(socketId: string, disconnectReason: number): Promise<void> {
         const existingSocket = this.#whatsAppSocketRepository.find(socketId)
 
-        console.log(existingSocket?.socket.ws.eventNames())
-
         if (disconnectReason === DisconnectReason.loggedOut && existingSocket) {
             this.#whatsAppSocketRepository.remove(existingSocket.socketId);
             await fs.promises.rm(`./connections/${socketId}`, { recursive: true });
-        } else if (disconnectReason !== DisconnectReason.restartRequired && existingSocket) {
-            existingSocket.state = 'restarting';
-            this.#whatsAppSocketRepository.update(existingSocket.socketId, existingSocket);
+        } else if (disconnectReason === DisconnectReason.restartRequired && existingSocket) {
+            this.#whatsAppSocketRepository.remove(existingSocket.socketId);
             await this.connect(socketId);
-        } else if (disconnectReason !== DisconnectReason.loggedOut && existingSocket) {
+        } else if (!([DisconnectReason.loggedOut, DisconnectReason.restartRequired ].includes(disconnectReason)) && existingSocket) {
             this.#whatsAppSocketRepository.remove(existingSocket.socketId)
             await this.connect(socketId);
         }
