@@ -29,8 +29,8 @@ export class WhatsappSocketManagerBaileys implements WhatsAppSocketManagerServic
         })
         this.#whatsAppSocketRepository.save(whatsAppSocket);
 
-        sock.ev.on('connection.update', async (update) => this.handleConnectionUpdate(socketId, update));
-        sock.ev.on('creds.update', saveCreds);
+        whatsAppSocket.socket.ev.on('connection.update', async (update) => this.handleConnectionUpdate(socketId, update));
+        whatsAppSocket.socket.ev.on('creds.update', saveCreds);
     }
 
     private async handleConnectionUpdate(socketId: string, update: Partial<ConnectionState>): Promise<void> {
