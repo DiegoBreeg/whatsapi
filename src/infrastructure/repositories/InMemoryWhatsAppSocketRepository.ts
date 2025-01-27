@@ -26,13 +26,10 @@ export class InMemoryWhatsAppSocketRepository implements WhatsAppSocketRepositor
     }
 
     public update(socketId: string, whatsAppSocket: Partial<WhatsAppSocket>): void {
-
         const existingSocket = this.sockets.get(socketId);
-
         if (existingSocket) {
-
-            existingSocket.state = whatsAppSocket.state? whatsAppSocket.state: existingSocket.state;
-            existingSocket.qrcode = whatsAppSocket.qrcode? whatsAppSocket.qrcode: existingSocket.qrcode;
+            existingSocket.state = whatsAppSocket.state ? whatsAppSocket.state : existingSocket.state;
+            existingSocket.qrcode = whatsAppSocket.qrcode ? whatsAppSocket.qrcode : existingSocket.qrcode;
             this.sockets.set(socketId, existingSocket);
         }
     }

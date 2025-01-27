@@ -52,10 +52,10 @@ app.use(express.json());
     app.get('/sockets', async (req, res) => {
 
         const repository = InMemoryWhatsAppSocketRepository.getInstance()
-        const sockets = repository.find('123')
-        console.log(sockets?.state)
+        const sockets = repository.getAll()
+        console.log(sockets)
 
-        res.status(200).send(sockets?.state);
+        res.status(200).send(sockets);
     })
 })()
 

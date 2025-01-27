@@ -1,12 +1,11 @@
-import makeWASocket, { DisconnectReason, useMultiFileAuthState, AuthenticationState, WASocket, ConnectionState } from "@whiskeysockets/baileys";
+import makeWASocket, { DisconnectReason, useMultiFileAuthState, WASocket, ConnectionState } from "@whiskeysockets/baileys";
 import pino from 'pino'
 import { WhatsAppSocketManagerService } from "../../core/services/WhatsAppSocketManagerService";
 import { Boom } from '@hapi/boom';
 import QRCode from 'qrcode';
 import fs from 'fs';
 import { WhatsAppSocketRepository } from "../../core/repositories/WhatsAppSocketRepository";
-import { WhatsAppSocket } from "../../core/entities/WhatsAppSocket";
-
+import { State, WhatsAppSocket } from "../../core/entities/WhatsAppSocket";
 export class WhatsappSocketManagerBaileys implements WhatsAppSocketManagerService {
     #whatsAppSocketRepository: WhatsAppSocketRepository
 
@@ -21,26 +20,26 @@ export class WhatsappSocketManagerBaileys implements WhatsAppSocketManagerServic
             printQRInTerminal: false,
             logger: pino({ level: 'warn' })
         });
-
         const whatsAppSocket = new WhatsAppSocket({
             socketId,
             socket: sock,
-            state: 'connecting'
-        })
+            state: State.connecting
+        });
         this.#whatsAppSocketRepository.save(whatsAppSocket);
-
         whatsAppSocket.socket.ev.on('connection.update', async (update) => this.handleConnectionUpdate(socketId, update));
         whatsAppSocket.socket.ev.on('creds.update', saveCreds);
     }
 
     private async handleConnectionUpdate(socketId: string, update: Partial<ConnectionState>): Promise<void> {
         const { connection, lastDisconnect, qr } = update;
-
         if (connection === 'open') {
+            console.log(`[OPEN]: ${connection}, `);
             await this.handleConnectionOpen(socketId);
         } else if (qr) {
+            console.log(`[QR]: ${connection}`);
             await this.handleQRUpdate(socketId, qr);
         } else if (connection === 'close') {
+            console.log(`[CLOSE]: ${connection}`);
             const disconnectReason = (lastDisconnect?.error as Boom)?.output?.statusCode;
             await this.handleConnectionClose(socketId, disconnectReason);
         }
@@ -49,34 +48,50 @@ export class WhatsappSocketManagerBaileys implements WhatsAppSocketManagerServic
     private async handleConnectionOpen(socketId: string): Promise<void> {
         const existingSocket = this.#whatsAppSocketRepository.find(socketId)
         if (existingSocket) {
-            existingSocket.state = 'open';
+            console.log(`[STATE BEFORE] ${existingSocket.state}`)
+            existingSocket.state = State.open;
+            console.log(`[STATE AFTER] ${existingSocket.state}`)
             this.#whatsAppSocketRepository.update(existingSocket.socketId, existingSocket);
         }
     }
 
     private async handleQRUpdate(socketId: string, qr: string): Promise<void> {
-        const qrCodeDataURL = await QRCode.toDataURL(qr);
         const existingSocket = this.#whatsAppSocketRepository.find(socketId)
-        if (existingSocket) {
-            existingSocket.qrcode = qrCodeDataURL;
-            existingSocket.state = 'connecting';
-            this.#whatsAppSocketRepository.update(existingSocket.socketId, existingSocket);
+        if (!existingSocket) {
+            return;
         }
+        if (existingSocket.reconnectionAttempts > 0) {
+            existingSocket.socket.logout();
+            return;
+        }
+        console.log(`[STATE BEFORE] ${existingSocket.state}`)
+        existingSocket.qrcode = await QRCode.toDataURL(qr);
+        existingSocket.state = State.waitingForQRCodeScan;
+        existingSocket.incrementReconnectionAttempts();
+        console.log(`[ATTEMPTS] ${existingSocket.reconnectionAttempts}`);
+        console.log(`[STATE AFTER] ${existingSocket.state}`)
+        this.#whatsAppSocketRepository.update(existingSocket.socketId, existingSocket);
     }
 
     private async handleConnectionClose(socketId: string, disconnectReason: number): Promise<void> {
         const existingSocket = this.#whatsAppSocketRepository.find(socketId)
-
-        if (disconnectReason === DisconnectReason.loggedOut && existingSocket) {
+        console.log(`[REASON] ${disconnectReason}`);
+        if (!existingSocket) {
+            return;
+        }
+        if (disconnectReason === DisconnectReason.loggedOut) {
+            console.log(`[STATE BEFORE] ${existingSocket.state}`)
             this.#whatsAppSocketRepository.remove(existingSocket.socketId);
             await fs.promises.rm(`./connections/${socketId}`, { recursive: true });
-        } else if (disconnectReason === DisconnectReason.restartRequired && existingSocket) {
+            return;
+        } else if (disconnectReason === DisconnectReason.restartRequired) {
+            console.log(`[STATE BEFORE] ${existingSocket.state}`)
             this.#whatsAppSocketRepository.remove(existingSocket.socketId);
             await this.connect(socketId);
-        } else if (!([DisconnectReason.loggedOut, DisconnectReason.restartRequired ].includes(disconnectReason)) && existingSocket) {
-            this.#whatsAppSocketRepository.remove(existingSocket.socketId)
-            await this.connect(socketId);
+            return;
         }
+        console.log(`[UNCAUGHT REASON] ${disconnectReason}`)
+        return
     }
 
     async disconnect(socket: WASocket): Promise<void> {
