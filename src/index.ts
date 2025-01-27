@@ -57,6 +57,19 @@ app.use(express.json());
 
         res.status(200).send(sockets);
     })
+
+    app.post('/disconnect', async (req, res) => {
+        const { socketId } = req.body
+        const repository = InMemoryWhatsAppSocketRepository.getInstance()
+        const wa = new WhatsappSocketManagerBaileys(repository);
+        wa.disconnect(socketId);
+        repository.getAll().forEach( socket => {
+            console.log(`[SOCKETID] ${socket.socketId}`)
+            console.log(`[STATE] ${socket.state} \n`);
+        })
+
+        res.status(200).send(repository.getAll());
+    })
 })()
 
 app.listen(3000, () => console.log("SERVER ONLINE"))

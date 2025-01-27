@@ -42,7 +42,7 @@ export class InMemoryWhatsAppSocketRepository implements WhatsAppSocketRepositor
         return Array.from(this.sockets.values());
     }
 
-    public async exists(socketId: string): Promise<boolean> {
+    public exists(socketId: string): boolean {
         return this.sockets.has(socketId);
     }
 }

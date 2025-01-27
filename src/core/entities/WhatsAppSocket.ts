@@ -3,7 +3,7 @@ import makeWASocket, { DisconnectReason, useMultiFileAuthState, AuthenticationSt
 export enum State {
     open = 'open',
     connecting = 'connecting',
-    waitingForQRCodeScan = 'waiting for qr code scan'
+    waitingForQRCodeScan = 'waiting for qrcode scan'
 }
 
 export type WhatsAppSocketParams = {

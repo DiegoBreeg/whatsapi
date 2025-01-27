@@ -90,13 +90,16 @@ export class WhatsappSocketManagerBaileys implements WhatsAppSocketManagerServic
             await this.connect(socketId);
             return;
         }
-        console.log(`[UNCAUGHT REASON] ${disconnectReason}`)
-        return
+        console.log(`[UNCAUGHT REASON] ${disconnectReason}`);
+        return;
     }
 
-    async disconnect(socket: WASocket): Promise<void> {
-        socket.end(undefined);
-        socket.ws.removeAllListeners();
+    async disconnect(socketId: string): Promise<void> {
+        const existingSocket = this.#whatsAppSocketRepository.find(socketId);
+        if (!existingSocket) {
+            return;
+        }
+        existingSocket.socket.logout();
     }
 
     registerEventListeners(): void {
