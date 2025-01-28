@@ -17,29 +17,18 @@ export class ConnectToWhatsAppUseCase {
 
     private validate(socketId: string) {
         const existingSocket = this.whatsAppSocketRepository.find(socketId);
-        const errorMessages: Record<Partial<State>, string> = {
+        if (!existingSocket) {
+            return;
+        }
+        const errorMessages = {
             [State.open]: 'Connection Already Open',
-            [State.waitingForQRCodeScan]: 'Waiting For QRCode Scan'
-        };
-        if(!existingSocket) {
-            throw new CustomError({
-                message: 'Connection not Found',
-                statusCodeMessage: CustomErrorStatusCodeMessage.Badrequest
-            })
+            [State.waitingForQRCodeScan]: 'Wanting For QRCode Scan',
+            [State.connecting]: 'Connection ALready Connecting'
         }
-        const errorMessage = errorMessages[existingSocket.state];
 
-        if (existingSocket && existingSocket.state === State.open) {
-            throw new CustomError({
-                message: 'Connection Already Open',
-                statusCodeMessage: CustomErrorStatusCodeMessage.Conflict
-            })
-        }
-        if (existingSocket && existingSocket.state === State.waitingForQRCodeScan) {
-            throw new CustomError({
-                message: 'Waiting For QRCode Scan',
-                statusCodeMessage: CustomErrorStatusCodeMessage.Conflict
-            })
-        }
+        throw new CustomError({
+            message: errorMessages[existingSocket.state],
+            statusCodeMessage: CustomErrorStatusCodeMessage.Conflict
+        })
     }
 }
