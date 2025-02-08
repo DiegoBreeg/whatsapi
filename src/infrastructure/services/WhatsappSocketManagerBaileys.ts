@@ -60,7 +60,8 @@ export class WhatsappSocketManagerBaileys implements WhatsAppSocketManagerServic
         if (!existingSocket) {
             return;
         }
-        if (existingSocket.reconnectionAttempts > 0) {
+        if (existingSocket.reconnectionAttempts > 3) {
+            console.log(`[ATTEMPTS] ${existingSocket.reconnectionAttempts}`);
             existingSocket.socket.logout();
             return;
         }
