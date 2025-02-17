@@ -10,7 +10,6 @@ export class InMemoryWhatsAppSocketRepository implements WhatsAppSocketRepositor
     }
 
     public static getInstance(): InMemoryWhatsAppSocketRepository {
-
         if (!InMemoryWhatsAppSocketRepository.instance) {
             InMemoryWhatsAppSocketRepository.instance = new InMemoryWhatsAppSocketRepository();
         }
