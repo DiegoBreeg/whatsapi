@@ -1,7 +1,8 @@
 export enum CustomErrorStatusCodeMessage {
     Badrequest = "Bad Request",
     Forbidden = "Forbidden",
-    Conflict = "Conflict"
+    Conflict = "Conflict",
+    NotFound = "Not Found"
 }
 
 export type CustomErrorParams = {
@@ -28,7 +29,8 @@ export class CustomError {
             "Bad Request": 400,
             "Unauthorized": 401,
             "Forbidden": 403,
-            "Conflict": 409
+            "Conflict": 409,
+            "Not Found": 404
         }
 
         return statusCodeList[customErrorStatusCodeMessage];
