@@ -12,29 +12,16 @@ export class ConnectToWhatsAppUseCase {
     ) { }
 
     async execute(socketId: string) {
-
         const existingSocket = this.whatsAppSocketRepository.find(socketId);
 
-        if (!existingSocket) {
-            await this.whatsappSocketManager.connect(socketId);
-            return { message: "Generating qrcode, reload to get qrcode" };
+        if (existingSocket) {
+            throw new CustomError({
+                message: "Connection already exists",
+                statusCodeMessage: CustomErrorStatusCodeMessage.Conflict
+            });
         }
 
-        if (existingSocket.state === State.waitingForQRCodeScan) {
-            return {
-                message: "Scan the QRCODE",
-                qrcode: existingSocket.qrcode
-            };
-        }
-
-        const errorMessages = {
-            [State.open]: 'Connection Already Open',
-            [State.connecting]: 'Connection Already Connecting'
-        };
-
-        throw new CustomError({
-            message: errorMessages[existingSocket.state],
-            statusCodeMessage: CustomErrorStatusCodeMessage.Conflict
-        });
+        await this.whatsappSocketManager.connect(socketId);
+        return { message: "Connection successfull created" };
     }
 }
