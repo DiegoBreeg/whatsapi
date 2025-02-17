@@ -1,11 +1,11 @@
-import express, { Request, Response, NextFunction } from 'express';
-import { CustomError } from './core/errors/CustomError';
-import { connectToWhatsAppRoutes } from "./infrastructure/routes/ConnectToWhatsAppSocketRoutes";
+import express from 'express';
+
 import { ErrorHandlerMiddleware } from './infrastructure/middlewares/ErrorHandlerMiddleware';
+import { routes } from './infrastructure/routes/routes';
 
 const app = express()
 app.use(express.json());
 
-app.use(connectToWhatsAppRoutes);
+app.use(routes);
 app.use(ErrorHandlerMiddleware.handle);
 app.listen(3000, () => console.log("SERVER ONLINE"));

@@ -4,7 +4,7 @@ import { ConnectToWhatsAppUseCase } from "../../core/useCases/ConnectToWhatsAppU
 export class ConnectToWhatsAppController {
     constructor(private connecToWhatsAppUseCase: ConnectToWhatsAppUseCase) { }
 
-    public async connect(req: Request, res: Response, next: NextFunction): Promise<void> {
+    public async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
 
         try {
             const result = await this.connecToWhatsAppUseCase.execute(req.body.socketId);
