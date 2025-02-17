@@ -1,18 +1,18 @@
-import { State, WhatsAppSocket } from "../entities/WhatsAppSocket";
+import { State, WhatsAppConnection } from "../entities/WhatsAppConnection";
 import { CustomError, CustomErrorStatusCodeMessage } from "../errors/CustomError";
-import { WhatsAppSocketRepository } from "../repositories/WhatsAppSocketRepository";
+import { WhatsAppConnectionRepository } from "../repositories/WhatsAppConnectionRepository";
 import { UUIDGeneratorService } from "../services/UUIDGeneratorService";
-import { WhatsAppSocketManagerService } from "../services/WhatsAppSocketManagerService";
+import { WhatsAppConnectionManagerService } from "../services/WhatsAppConnectionManagerService";
 
 export class ConnectToWhatsAppUseCase {
     constructor(
-        private readonly whatsAppSocketRepository: WhatsAppSocketRepository,
-        private readonly whatsappSocketManager: WhatsAppSocketManagerService,
+        private readonly whatsAppConnectionRepository: WhatsAppConnectionRepository,
+        private readonly whatsappConnectionManager: WhatsAppConnectionManagerService,
         private readonly uuidGenerator: UUIDGeneratorService
     ) { }
 
     async execute(socketId: string) {
-        const existingSocket = this.whatsAppSocketRepository.find(socketId);
+        const existingSocket = this.whatsAppConnectionRepository.find(socketId);
 
         if (existingSocket) {
             throw new CustomError({
@@ -21,7 +21,7 @@ export class ConnectToWhatsAppUseCase {
             });
         }
 
-        await this.whatsappSocketManager.connect(socketId);
+        await this.whatsappConnectionManager.connect(socketId);
         return { message: "Connection successfull created" };
     }
 }

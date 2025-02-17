@@ -6,7 +6,7 @@ export enum State {
     waitingForQRCodeScan = 'waiting for qrcode scan'
 }
 
-export type WhatsAppSocketParams = {
+export type WhatsAppConnectionParams = {
     socketId: string;
     socket: WASocket;
     state: State;
@@ -14,14 +14,14 @@ export type WhatsAppSocketParams = {
     reconnectionAttempts?: number;
 }
 
-export class WhatsAppSocket {
+export class WhatsAppConnection {
     #socketId: string;
     #socket: WASocket;
     #state: State;
     #qrcode?: string | undefined;
     #reconnectionAttempts: number
 
-    constructor(whatsAppParams: WhatsAppSocketParams) {
+    constructor(whatsAppParams: WhatsAppConnectionParams) {
         this.#socketId = whatsAppParams.socketId;
         this.#socket = whatsAppParams.socket;
         this.#state = whatsAppParams.state;

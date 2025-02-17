@@ -1,6 +1,6 @@
 import { WASocket } from "@whiskeysockets/baileys";
 
-export interface WhatsAppSocketManagerService {
+export interface WhatsAppConnectionManagerService {
     connect(socketId: string): Promise<WASocket>;
     disconnect(socketId: string): void;
     registerEventListeners(): void;
