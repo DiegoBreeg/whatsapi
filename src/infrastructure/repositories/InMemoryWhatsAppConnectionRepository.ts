@@ -3,10 +3,10 @@ import { WhatsAppConnectionRepository } from "../../core/repositories/WhatsAppCo
 
 export class InMemoryWhatsAppConnectionRepository implements WhatsAppConnectionRepository {
     private static instance: InMemoryWhatsAppConnectionRepository
-    private sockets: Map<string, WhatsAppConnection>
+    private connections: Map<string, WhatsAppConnection>
 
     private constructor() {
-        this.sockets = new Map<string, WhatsAppConnection>();
+        this.connections = new Map<string, WhatsAppConnection>();
     }
 
     public static getInstance(): InMemoryWhatsAppConnectionRepository {
@@ -16,32 +16,32 @@ export class InMemoryWhatsAppConnectionRepository implements WhatsAppConnectionR
         return InMemoryWhatsAppConnectionRepository.instance;
     }
 
-    public save(socket: WhatsAppConnection): void {
-        this.sockets.set(socket.socketId, socket);
+    public save(connection: WhatsAppConnection): void {
+        this.connections.set(connection.connectionId, connection);
     }
 
-    public find(socketId: string): WhatsAppConnection | undefined {
-        return this.sockets.get(socketId) || undefined;
+    public find(connectionId: string): WhatsAppConnection | undefined {
+        return this.connections.get(connectionId) || undefined;
     }
 
-    public update(socketId: string, whatsAppConnection: Partial<WhatsAppConnection>): void {
-        const socket = this.sockets.get(socketId);
-        if (socket) {
-            socket.state = whatsAppConnection.state ?? socket.state;
-            socket.qrcode = whatsAppConnection.qrcode ?? socket.qrcode;
-            this.sockets.set(socketId, socket);
+    public update(connectionId: string, whatsAppConnection: Partial<WhatsAppConnection>): void {
+        const connection = this.connections.get(connectionId);
+        if (connection) {
+            connection.state = whatsAppConnection.state ?? connection.state;
+            connection.qrcode = whatsAppConnection.qrcode ?? connection.qrcode;
+            this.connections.set(connectionId, connection);
         }
     }
 
-    public remove(socketId: string): void {
-        this.sockets.delete(socketId);
+    public remove(connectionId: string): void {
+        this.connections.delete(connectionId);
     }
 
     public getAll(): WhatsAppConnection[] {
-        return Array.from(this.sockets.values());
+        return Array.from(this.connections.values());
     }
 
-    public exists(socketId: string): boolean {
-        return this.sockets.has(socketId);
+    public exists(connectionId: string): boolean {
+        return this.connections.has(connectionId);
     }
 }

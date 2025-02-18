@@ -1,36 +1,36 @@
 import makeWASocket, { DisconnectReason, useMultiFileAuthState, AuthenticationState, WASocket } from "@whiskeysockets/baileys";
 
 export enum State {
-    open = 'open',
-    connecting = 'connecting',
-    waitingForQRCodeScan = 'waiting for qrcode scan'
+    open                    = 'open',
+    connecting              = 'connecting',
+    waitingForQRCodeScan    = 'waiting for qrcode scan'
 }
 
 export type WhatsAppConnectionParams = {
-    socketId: string;
-    socket: WASocket;
-    state: State;
-    qrcode?: string | undefined;
+    connectionId:           string;
+    socket:                 WASocket;
+    state:                  State;
+    qrcode?:                string | undefined;
     reconnectionAttempts?: number;
 }
 
 export class WhatsAppConnection {
-    #socketId: string;
-    #socket: WASocket;
-    #state: State;
-    #qrcode?: string | undefined;
-    #reconnectionAttempts: number
+    #connectionId           : string;
+    #socket                 : WASocket;
+    #state                  : State;
+    #qrcode                 ?: string | undefined;
+    #reconnectionAttempts   : number
 
     constructor(whatsAppParams: WhatsAppConnectionParams) {
-        this.#socketId = whatsAppParams.socketId;
-        this.#socket = whatsAppParams.socket;
-        this.#state = whatsAppParams.state;
-        this.#qrcode = whatsAppParams.qrcode;
-        this.#reconnectionAttempts = whatsAppParams.reconnectionAttempts ?? 0;
+        this.#connectionId          = whatsAppParams.connectionId;
+        this.#socket                = whatsAppParams.socket;
+        this.#state                 = whatsAppParams.state;
+        this.#qrcode                = whatsAppParams.qrcode;
+        this.#reconnectionAttempts  = whatsAppParams.reconnectionAttempts ?? 0;
     }
 
-    get socketId(): string {
-        return this.#socketId;
+    get connectionId(): string {
+        return this.#connectionId;
     }
 
     get socket(): WASocket {
@@ -53,6 +53,20 @@ export class WhatsAppConnection {
         this.#qrcode = qrcode;
     }
 
+    get reconnectionAttempts() {
+        return this.#reconnectionAttempts;
+    }
+
+    getAll() {
+        return {
+            connectionId            : this.#connectionId,
+            qrcode                  : this.#qrcode,
+            reconnectionAttempts    : this.#reconnectionAttempts,
+            socket                  : this.#socket,
+            state                   : this.#state,
+        }
+    }
+
     incrementReconnectionAttempts() {
         this.#reconnectionAttempts++;
     }
@@ -61,7 +75,5 @@ export class WhatsAppConnection {
         this.#reconnectionAttempts = 0;
     }
 
-    get reconnectionAttempts() {
-        return this.#reconnectionAttempts;
-    }
+
 }

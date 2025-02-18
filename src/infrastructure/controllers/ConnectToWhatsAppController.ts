@@ -8,6 +8,7 @@ export class ConnectToWhatsAppController {
 
         try {
             const result = await this.connecToWhatsAppUseCase.execute(req.body.socketId);
+
             /* if (result.qrcode) {
                 res.setHeader("Content-Type", "text/html");
                 res.send(`<img src="${result.qrcode}" alt="QR Code" />`);
