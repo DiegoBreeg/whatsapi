@@ -29,11 +29,11 @@ export class WhatsAppConnection {
         this.#connectionAttempts        = whatsAppParams.connectionAttempts ?? 0;
     }
 
-    get connectionId(): string {
+    get connectionId()                      : string {
         return this.#connectionId;
     }
 
-    get connectionSocket(): WASocket {
+    get connectionSocket()                  : WASocket {
         return this.#connectionSocket;
     }
 
@@ -41,15 +41,15 @@ export class WhatsAppConnection {
         return this.#connectionState;
     }
 
-    set connectionState(value: State) {
+    set connectionState(value               : State) {
         this.#connectionState = value;
     }
 
-    get connectionQrcode(): string | undefined {
+    get connectionQrcode()                  : string | undefined {
         return this.#connectionQrcode
     }
 
-    set connectionQrcode(qrcode: string | undefined) {
+    set connectionQrcode(qrcode             : string | undefined) {
         this.#connectionQrcode = qrcode;
     }
 

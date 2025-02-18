@@ -18,23 +18,23 @@ export class UserEntity {
     this.#userCreatedAt      = userParams.userCreatedAt;
     }
 
-    get userId (): string {
+    get userId             ()                 : string {
         return this.#userId;
     }
 
-    get userName (): string {
+    get userName           ()                 : string {
         return this.#userName;
     }
 
-    get userHashedPassword (): string {
+    get userHashedPassword ()                 : string {
         return this.#userHashedPassword;
     }
 
-    set userHashedPassword (userHashedPassword) {
+    set userHashedPassword (userHashedPassword : string) {
         this.#userHashedPassword = userHashedPassword;
     }
 
-    get userCreatedAt (): Date {
+    get userCreatedAt      ()                  : Date {
         return this.#userCreatedAt;
     }
 };
