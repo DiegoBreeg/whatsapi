@@ -5,7 +5,7 @@ import { Boom } from '@hapi/boom';
 import QRCode from 'qrcode';
 import fs from 'fs';
 import { WhatsAppConnectionRepository } from "../../core/repositories/WhatsAppConnectionRepository";
-import { State, WhatsAppConnection } from "../../core/entities/WhatsAppConnection";
+import { State, WhatsAppConnection } from "../../core/entities/WhatsAppConnectionEntity";
 export class WhatsappConnectionManagerBaileys implements WhatsAppConnectionManagerService {
     #whatsAppConnectionRepository: WhatsAppConnectionRepository
 
@@ -22,12 +22,12 @@ export class WhatsappConnectionManagerBaileys implements WhatsAppConnectionManag
         });
         const whatsAppConnection = new WhatsAppConnection({
             connectionId,
-            socket: sock,
-            state: State.connecting
+            connectionSocket    : sock,
+            connectionState     : State.connecting
         });
         this.#whatsAppConnectionRepository.save(whatsAppConnection);
-        whatsAppConnection.socket.ev.on('connection.update', async (update) => this.handleConnectionUpdate(connectionId, update));
-        whatsAppConnection.socket.ev.on('creds.update', saveCreds);
+        whatsAppConnection.connectionSocket.ev.on('connection.update', async (update) => this.handleConnectionUpdate(connectionId, update));
+        whatsAppConnection.connectionSocket.ev.on('creds.update', saveCreds);
 
         return whatsAppConnection;
     }
@@ -50,9 +50,9 @@ export class WhatsappConnectionManagerBaileys implements WhatsAppConnectionManag
     private async handleConnectionOpen(connectionId: string): Promise<void> {
         const socket = this.#whatsAppConnectionRepository.find(connectionId)
         if (socket) {
-            console.log(`[STATE BEFORE] ${socket.state}`)
-            socket.state = State.open;
-            console.log(`[STATE AFTER] ${socket.state}`)
+            console.log(`[STATE BEFORE] ${socket.connectionState}`)
+            socket.connectionState = State.open;
+            console.log(`[STATE AFTER] ${socket.connectionState}`)
             this.#whatsAppConnectionRepository.update(socket.connectionId, socket);
         }
     }
@@ -62,17 +62,17 @@ export class WhatsappConnectionManagerBaileys implements WhatsAppConnectionManag
         if (!socket) {
             return;
         }
-        if (socket.reconnectionAttempts >= 3) {
-            console.log(`[ATTEMPTS] ${socket.reconnectionAttempts}`);
-            socket.socket.logout();
+        if (socket.connectionAttempts >= 3) {
+            console.log(`[ATTEMPTS] ${socket.connectionAttempts}`);
+            socket.connectionSocket.logout();
             return;
         }
-        console.log(`[STATE BEFORE] ${socket.state}`)
-        socket.qrcode = await QRCode.toDataURL(qr);
-        socket.state = State.waitingForQRCodeScan;
-        socket.incrementReconnectionAttempts();
-        console.log(`[ATTEMPTS] ${socket.reconnectionAttempts}`);
-        console.log(`[STATE AFTER] ${socket.state}`)
+        console.log(`[STATE BEFORE] ${socket.connectionState}`)
+        socket.connectionQrcode = await QRCode.toDataURL(qr);
+        socket.connectionState = State.waitingForQRCodeScan;
+        socket.incrementConnectionAttempts();
+        console.log(`[ATTEMPTS] ${socket.connectionAttempts}`);
+        console.log(`[STATE AFTER] ${socket.connectionState}`)
         this.#whatsAppConnectionRepository.update(socket.connectionId, socket);
     }
 
@@ -83,12 +83,12 @@ export class WhatsappConnectionManagerBaileys implements WhatsAppConnectionManag
             return;
         }
         if (disconnectReason === DisconnectReason.loggedOut) {
-            console.log(`[STATE BEFORE] ${socket.state}`)
+            console.log(`[STATE BEFORE] ${socket.connectionState}`)
             this.#whatsAppConnectionRepository.remove(socket.connectionId);
             await fs.promises.rm(`./connections/${connectionId}`, { recursive: true });
             return;
         } else if (disconnectReason === DisconnectReason.restartRequired) {
-            console.log(`[STATE BEFORE] ${socket.state}`)
+            console.log(`[STATE BEFORE] ${socket.connectionState}`)
             this.#whatsAppConnectionRepository.remove(socket.connectionId);
             await this.connect(connectionId);
             return;
@@ -102,7 +102,7 @@ export class WhatsappConnectionManagerBaileys implements WhatsAppConnectionManag
         if (!existingSocket) {
             return;
         }
-        existingSocket.socket.logout();
+        existingSocket.connectionSocket.logout();
     }
 
     registerEventListeners(): void {

@@ -1,4 +1,4 @@
-import { State, WhatsAppConnection }                    from "../entities/WhatsAppConnection";
+import { State, WhatsAppConnection }                    from "../entities/WhatsAppConnectionEntity";
 import { CustomError, CustomErrorStatusCodeMessage }    from "../errors/CustomError";
 import { WhatsAppConnectionRepository }                 from "../repositories/WhatsAppConnectionRepository";
 import { UUIDGeneratorService }                         from "../services/UUIDGeneratorService";

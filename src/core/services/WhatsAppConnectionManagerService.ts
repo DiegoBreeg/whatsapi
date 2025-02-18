@@ -1,5 +1,5 @@
 import { WASocket } from "@whiskeysockets/baileys";
-import { WhatsAppConnection } from "../entities/WhatsAppConnection";
+import { WhatsAppConnection } from "../entities/WhatsAppConnectionEntity";
 
 export interface WhatsAppConnectionManagerService {
     connect(connectionId: string): Promise<WhatsAppConnection>;

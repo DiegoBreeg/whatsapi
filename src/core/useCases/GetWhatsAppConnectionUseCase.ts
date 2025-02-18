@@ -11,8 +11,8 @@ export class GetWhatsAppConnectionUseCase {
 
         if (!socket) {
             throw new CustomError({
-                message: "Connection not found",
-                statusCodeMessage: CustomErrorStatusCodeMessage.NotFound
+                message             : "Connection not found",
+                statusCodeMessage   : CustomErrorStatusCodeMessage.NotFound
             });
         }
 
