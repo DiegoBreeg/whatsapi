@@ -1,11 +1,12 @@
-import makeWASocket, { DisconnectReason, useMultiFileAuthState, WASocket, ConnectionState } from "@whiskeysockets/baileys";
-import pino from 'pino'
-import { WhatsAppConnectionManagerService } from "../../core/services/WhatsAppConnectionManagerService";
-import { Boom } from '@hapi/boom';
-import QRCode from 'qrcode';
-import fs from 'fs';
-import { WhatsAppConnectionRepository } from "../../core/repositories/WhatsAppConnectionRepository";
-import { State, WhatsAppConnection } from "../../core/entities/WhatsAppConnectionEntity";
+import makeWASocket, { DisconnectReason, useMultiFileAuthState, WASocket, ConnectionState }     from "@whiskeysockets/baileys";
+import pino                                                                                     from 'pino'
+import { WhatsAppConnectionManagerService }                                                     from "../../core/services/WhatsAppConnectionManagerService";
+import { Boom }                                                                                 from '@hapi/boom';
+import QRCode                                                                                   from 'qrcode';
+import fs                                                                                       from 'fs';
+import { WhatsAppConnectionRepository }                                                         from "../../core/repositories/WhatsAppConnectionRepository";
+import { State, WhatsAppConnection }                                                            from "../../core/entities/WhatsAppConnectionEntity";
+
 export class WhatsappConnectionManagerBaileys implements WhatsAppConnectionManagerService {
     #whatsAppConnectionRepository: WhatsAppConnectionRepository
 
@@ -15,16 +16,19 @@ export class WhatsappConnectionManagerBaileys implements WhatsAppConnectionManag
 
     async connect(connectionId: string): Promise<WhatsAppConnection> {
         const { state, saveCreds } = await useMultiFileAuthState(`connections/${connectionId}/`)
+
         const sock = makeWASocket({
-            auth: state,
-            printQRInTerminal: false,
-            logger: pino({ level: 'warn' })
+            auth                    : state,
+            printQRInTerminal       : false,
+            logger                  : pino({ level: 'warn' })
         });
+
         const whatsAppConnection = new WhatsAppConnection({
             connectionId,
             connectionSocket    : sock,
             connectionState     : State.connecting
         });
+
         this.#whatsAppConnectionRepository.save(whatsAppConnection);
         whatsAppConnection.connectionSocket.ev.on('connection.update', async (update) => this.handleConnectionUpdate(connectionId, update));
         whatsAppConnection.connectionSocket.ev.on('creds.update', saveCreds);

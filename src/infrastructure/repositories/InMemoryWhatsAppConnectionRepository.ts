@@ -1,9 +1,9 @@
-import { WhatsAppConnection } from "../../core/entities/WhatsAppConnectionEntity";
-import { WhatsAppConnectionRepository } from "../../core/repositories/WhatsAppConnectionRepository";
+import { WhatsAppConnection }                       from "../../core/entities/WhatsAppConnectionEntity";
+import { WhatsAppConnectionRepository }             from "../../core/repositories/WhatsAppConnectionRepository";
 
 export class InMemoryWhatsAppConnectionRepository implements WhatsAppConnectionRepository {
-    private static instance: InMemoryWhatsAppConnectionRepository
-    private connections: Map<string, WhatsAppConnection>
+    private static instance         : InMemoryWhatsAppConnectionRepository
+    private connections             : Map<string, WhatsAppConnection>
 
     private constructor() {
         this.connections = new Map<string, WhatsAppConnection>();
@@ -26,10 +26,10 @@ export class InMemoryWhatsAppConnectionRepository implements WhatsAppConnectionR
 
     public update(connectionId: string, whatsAppConnection: Partial<WhatsAppConnection>): void {
 
-        const connection                = this.connections.get(connectionId);
+        const connection                        = this.connections.get(connectionId);
         if (connection) {
-            connection.connectionState  = whatsAppConnection.connectionState ?? connection.connectionState;
-            connection.connectionQrcode = whatsAppConnection.connectionQrcode ?? connection.connectionQrcode;
+            connection.connectionState          = whatsAppConnection.connectionState  ?? connection.connectionState;
+            connection.connectionQrcode         = whatsAppConnection.connectionQrcode ?? connection.connectionQrcode;
             this.connections.set(connectionId, connection);
         }
     }

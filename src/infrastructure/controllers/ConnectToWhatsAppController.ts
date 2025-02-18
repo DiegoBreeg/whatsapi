@@ -1,5 +1,5 @@
-import { NextFunction, Request, Response } from "express";
-import { ConnectToWhatsAppUseCase } from "../../core/useCases/ConnectToWhatsAppUseCase";
+import { NextFunction, Request, Response }          from "express";
+import { ConnectToWhatsAppUseCase }                 from "../../core/useCases/ConnectToWhatsAppUseCase";
 
 export class ConnectToWhatsAppController {
     constructor(private connecToWhatsAppUseCase: ConnectToWhatsAppUseCase) { }

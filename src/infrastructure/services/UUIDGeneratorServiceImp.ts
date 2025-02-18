@@ -1,5 +1,5 @@
-import { UUIDGeneratorService } from "../../core/services/UUIDGeneratorService";
-import { v7 as uuidv7 } from 'uuid';
+import { UUIDGeneratorService }             from "../../core/services/UUIDGeneratorService";
+import { v7 as uuidv7 }                     from 'uuid';
 
 export class UUIDGeneratorServiceImp implements UUIDGeneratorService {
 
