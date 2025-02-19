@@ -1,4 +1,4 @@
-class --migrationName {
+export class --migrationName {
 
     static up() :string {
         return `-- Write the SQL query here to create or change tables`;

@@ -7,7 +7,7 @@ export class MigrationGenerate {
         const migrationName                     = `Migration${actualDateString}`;
         const migrationDir                      = path.join(__dirname, "migrations");
         const migrationPath                     = path.join(migrationDir, `${migrationName}.ts`);
-        const templatePath                      = path.join(__dirname, "MigrationTemplate");
+        const templatePath                      = path.join(__dirname, "Migration.template");
 
         if(!fs.existsSync(migrationDir)) {
             fs.mkdirSync(migrationDir,{ recursive: true });
