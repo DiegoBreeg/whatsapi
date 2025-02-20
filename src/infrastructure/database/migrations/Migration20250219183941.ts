@@ -1,4 +1,4 @@
-export class Migration20250219174726 {
+export class Migration20250219183941 {
 
     static up() :string {
         return `-- Write the SQL query here to create or change tables`;

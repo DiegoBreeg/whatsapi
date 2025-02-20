@@ -2,7 +2,7 @@ import * as fs              from 'fs';
 import * as path            from 'path';
 
 export class MigrationGenerate {
-    static execute() {
+    public static execute() {
         const actualDateString                  = MigrationGenerate.generateActualDateString();
         const migrationName                     = `Migration${actualDateString}`;
         const migrationDir                      = path.join(__dirname, "migrations");
@@ -22,7 +22,7 @@ export class MigrationGenerate {
         console.log("\x1b[32m%s\x1b[0m",`${migrationPath}`)
     };
 
-    static generateActualDateString() {
+    private static generateActualDateString() {
         const now           = new Date();
         const nowInBrazil   = new Date(
               now.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" })

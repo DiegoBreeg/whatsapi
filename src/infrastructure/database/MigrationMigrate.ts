@@ -1,18 +1,19 @@
 import * as fs              from 'fs';
 import * as path            from 'path';
-import { MySQLConnection } from './MySQLConnection';
+import { MySQLConnection }  from './MySQLConnection';
 
 export class MigrationMigrate {
-    private static readonly database                          = MySQLConnection.getInstance();
-    private static readonly migrationDir                      = path.join(__dirname, "migrations");
+    static readonly #database                          = MySQLConnection.getInstance();
+    static readonly #migrationDir                      = path.join(__dirname, "migrations");
 
     static execute() {
         const argument = process.argv[2];
-        const migrations = fs.readdirSync(MigrationMigrate.migrationDir);
+        const migrations = fs.readdirSync(MigrationMigrate.#migrationDir);
         console.log(migrations);
+        MigrationMigrate.loadMigrations()
     }
 
-    private loadMigrations() {
+    private static loadMigrations() {
 
     }
 }
