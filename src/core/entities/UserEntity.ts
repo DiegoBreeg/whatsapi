@@ -1,40 +1,57 @@
 export type UserEntityParams = {
-    userId             : string;
-    userName           : string;
-    userHashedPassword : string;
-    userCreatedAt      : Date;
+    id                  : string;
+    email               : string;
+    hashedPassword      : string;
+    createdAt           : Date;
+    updatedAt           : Date;
+    deletedAt           : Date;
+    updatedBy           : string;
 };
 
 export class UserEntity {
-    #userId             : string;
-    #userName           : string;
-    #userHashedPassword : string;
-    #userCreatedAt      : Date;
+    #id                 : string;
+    #email              : string;
+    #hashedPassword     : string;
+    #createdAt          : Date;
+    #updatedAt          : Date;
+    #deletedAt          : Date;
+    #updatedBy          : string;
 
     constructor (userParams: UserEntityParams) {
-    this.#userId             = userParams.userId;
-    this.#userName           = userParams.userName;
-    this.#userHashedPassword = userParams.userHashedPassword;
-    this.#userCreatedAt      = userParams.userCreatedAt;
+    this.#id                = userParams.id;
+    this.#email             = userParams.email;
+    this.#hashedPassword    = userParams.hashedPassword;
+    this.#createdAt         = userParams.createdAt;
+    this.#updatedAt         = userParams.updatedAt;
+    this.#deletedAt         = userParams.deletedAt;
+    this.#updatedBy         = userParams.updatedBy;
     }
 
-    get userId             ()                 : string {
-        return this.#userId;
+    get id             ()                       : string {
+        return this.#id;
     }
 
-    get userName           ()                 : string {
-        return this.#userName;
+    get email           ()                      : string {
+        return this.#email;
     }
 
-    get userHashedPassword ()                 : string {
-        return this.#userHashedPassword;
+    get hashedPassword ()                       : string {
+        return this.#hashedPassword;
     }
 
-    set userHashedPassword (userHashedPassword : string) {
-        this.#userHashedPassword = userHashedPassword;
+    set hashedPassword (hashedPassword          : string) {
+        this.#hashedPassword = hashedPassword;
     }
 
-    get userCreatedAt      ()                  : Date {
-        return this.#userCreatedAt;
+    get createdAt      ()                       : Date {
+        return this.#createdAt;
+    }
+
+    get updatedAt      ()                       : Date {
+        return this.#updatedAt;
+    }
+
+    get deletedAt      ()                       : Date {
+        return this.#deletedAt;
     }
 };
