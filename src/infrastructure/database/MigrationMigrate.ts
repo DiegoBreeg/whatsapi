@@ -1,32 +1,30 @@
-import * as fs                      from 'fs';
-import * as path                    from 'path';
-import { MySQLConnection }          from './MySQLConnection';
-import { RowDataPacket } from 'mysql2';
+import * as fs                              from 'fs';
+import * as path                            from 'path';
+import { MySQLConnection }                  from './MySQLConnection';
+import { RowDataPacket }                    from 'mysql2';
 
 export class MigrationMigrate {
-    static readonly #database                           = MySQLConnection.getInstance();
-    static readonly #migrationsDir                      = path.join(__dirname, "migrations");
-    static readonly #arguments                          = process.argv[2];
-    static readonly #databaseName                       = process.env.MYSQL_DATABASE;
+    static readonly #database               = MySQLConnection.getInstance();
+    static readonly #migrationsDir          = path.join(__dirname, "migrations");
+    static readonly #arguments              = process.argv[2];
+    static readonly #databaseName           = process.env.MYSQL_DATABASE;
 
     static async execute() {
         try {
             await MigrationMigrate.#database.ensureDatabase();
             await MigrationMigrate.ensureMigrationTable();
-            const migrations = await MigrationMigrate.loadMigrations();
-            const alreadyMigrated = await MigrationMigrate.loadAlreadyMigrated();
-            const migrationsToApply = MigrationMigrate.getMigrationsToApply(migrations, alreadyMigrated);
+            const migrations                = await MigrationMigrate.loadMigrations();
+            const alreadyMigrated           = await MigrationMigrate.loadAlreadyMigrated();
+            const migrationsToApply         = MigrationMigrate.getMigrationsToApply(migrations, alreadyMigrated);
 
             for (const migration of migrationsToApply) {
                 await MigrationMigrate.#database.query(migration.sql);
                 await MigrationMigrate.registerMigration(migration.version);
-                console.log("\n");
-                console.log("\x1b[32m%s\x1b[0m", `Version: ${migration.version} successfully migrated!`);
-                console.log("\x1b[32m%s\x1b[0m", `${migration.sql}`);
-                console.log("\n");
+                const message = `Version: ${migration.version} successfully migrated!\n${migration.sql}`;
+                MigrationMigrate.showSuccessMessage(message);
             }
-        } catch (error) {
-            console.error("\x1b[31m%s\x1b[0m", "Error during migration:", error);
+        } catch (error: any) {
+            MigrationMigrate.showErrorMessage(error);
         } finally {
             await MigrationMigrate.#database.close();
         }
@@ -42,19 +40,19 @@ export class MigrationMigrate {
         );`;
 
         await MigrationMigrate.#database.query(sql);
-        console.log("\x1b[32m%s\x1b[0m", `Table ${MigrationMigrate.#databaseName} ensured!`);
+        MigrationMigrate.showSuccessMessage(`Table migrations ensured!`);
         return;
     }
 
     private static async loadMigrations() {
-        const files = fs.readdirSync(MigrationMigrate.#migrationsDir).sort();
-        const migrations = await Promise.all(
+        const files         = fs.readdirSync(MigrationMigrate.#migrationsDir).sort();
+        const migrations    = await Promise.all(
             files.map(file => import(path.join(MigrationMigrate.#migrationsDir, file)))
         );
 
         return migrations.map(migration => {
-            const version = Object.keys(migration)[0];
-            const sql = migration[version].up();
+            const version       = Object.keys(migration)[0];
+            const sql           = migration[version].up();
             return {version: version.replace("Migration", ""), sql};
         });
     }
@@ -77,6 +75,14 @@ export class MigrationMigrate {
 
         await MigrationMigrate.#database.query(sql);
     }
+
+    private static showSuccessMessage(message: string): void {
+        console.log("\x1b[32m%s\x1b[0m", message);
+    }
+
+    private static showErrorMessage(message: string): void {
+        console.log("\x1b[31m%s\x1b[0m", message);
+    }
 }
 
-MigrationMigrate.execute()
+MigrationMigrate.execute();
