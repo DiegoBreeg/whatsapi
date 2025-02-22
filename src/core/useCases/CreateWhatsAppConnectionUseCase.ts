@@ -4,23 +4,23 @@ import { WhatsAppConnectionRepository }                 from "../repositories/Wh
 import { UUIDGeneratorService }                         from "../services/UUIDGeneratorService";
 import { WhatsAppConnectionManagerService }             from "../services/WhatsAppConnectionManagerService";
 
-type ConnectToWhatsAppInput = {
+type CreateWhatsAppConnectionInput = {
 
 }
 
-type ConnectToWhatsAppOutput = {
+type CreateWhatsAppConnectionOutput = {
     message                 : string,
     whatsappConnectionId    : string
 }
 
-export class ConnectToWhatsAppUseCase {
+export class CreateWhatsAppConnectionUseCase {
     constructor (
         private readonly whatsAppConnectionRepository   : WhatsAppConnectionRepository,
         private readonly whatsappConnectionManager      : WhatsAppConnectionManagerService,
         private readonly uuidGenerator                  : UUIDGeneratorService
     ) { }
 
-    async execute(socketId: string): Promise<ConnectToWhatsAppOutput> {
+    async execute(socketId: string): Promise<CreateWhatsAppConnectionOutput> {
         const existingSocket = this.whatsAppConnectionRepository.find(socketId);
 
         if (existingSocket) {

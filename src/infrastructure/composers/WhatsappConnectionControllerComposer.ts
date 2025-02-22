@@ -1,22 +1,24 @@
-import { ConnectToWhatsAppUseCase }                     from "../../core/useCases/ConnectToWhatsAppUseCase";
-import { ConnectToWhatsAppController }                  from "../controllers/ConnectToWhatsAppController";
+import { CreateWhatsAppConnectionUseCase }              from "../../core/useCases/CreateWhatsAppConnectionUseCase";
+import { WhatsAppConnectionController }                 from "../controllers/WhatsAppConnectionController";
 import { InMemoryWhatsAppConnectionRepository }         from "../repositories/InMemoryWhatsAppConnectionRepository";
 import { UUIDGeneratorServiceImp }                      from "../services/UUIDGeneratorServiceImp";
 import { WhatsappConnectionManagerBaileys }             from "../services/WhatsappConnectionManagerBaileys";
 
-export class ConnectToWhatsAppComposer {
+export class WhatsappConnectionControllerComposer {
 
-    static createConnectToWhatsAppController(): ConnectToWhatsAppController {
+    static compose(): WhatsAppConnectionController {
 
         const inMemoryWhatsAppConnectionRepository      = InMemoryWhatsAppConnectionRepository.getInstance();
         const whatsappConnectionManager                 = new WhatsappConnectionManagerBaileys(inMemoryWhatsAppConnectionRepository);
         const uuidGenerator                             = new UUIDGeneratorServiceImp();
 
-        const connectToWhatsAppUseCase                  = new ConnectToWhatsAppUseCase(
+        const createWhatsAppConnectionUseCase           = new CreateWhatsAppConnectionUseCase(
             inMemoryWhatsAppConnectionRepository,
             whatsappConnectionManager,
             uuidGenerator
         );
-        return new ConnectToWhatsAppController(connectToWhatsAppUseCase);
+        return new WhatsAppConnectionController(
+            createWhatsAppConnectionUseCase
+        );
     }
 }

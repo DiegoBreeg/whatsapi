@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
-import { ConnectToWhatsAppComposer } from "../composers/ConnectToWhatsAppComposer";
+import { WhatsappConnectionControllerComposer } from "../composers/WhatsappConnectionControllerComposer";
 
 export const whatsappConnectionRoutes = Router();
 
-const connectToWhatsAppController = ConnectToWhatsAppComposer.createConnectToWhatsAppController();
-whatsappConnectionRoutes.post("/", (req, res, next) => connectToWhatsAppController.handle(req, res, next));
+const whatsAppConnectionController = WhatsappConnectionControllerComposer.compose();
+whatsappConnectionRoutes.post("/", (req, res, next) => whatsAppConnectionController.create(req, res, next));
