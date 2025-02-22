@@ -7,73 +7,94 @@ export enum State {
 }
 
 export type WhatsAppConnectionParams = {
-    connectionId            : string;
-    connectionSocket        : WASocket;
-    connectionState         : State;
-    connectionQrcode        ?: string | undefined;
-    connectionAttempts      ?: number;
+    id            : string;
+    socket        : WASocket;
+    userId        : string;
 }
 
 export class WhatsAppConnection {
-    #connectionId           : string;
-    #connectionSocket       : WASocket;
-    #connectionState        : State;
-    #connectionQrcode       ?: string | undefined;
-    #connectionAttempts     : number
+    #id             : string;
+    #socket         : WASocket;
+    #userId         : string;
+    #state          : State;
+    #qrCode         : string | null;
+    #attempts       : number;
+    #createdAt      : Date;
+    #updatedAt      : Date | null;
+    
 
     constructor(whatsAppParams: WhatsAppConnectionParams) {
-        this.#connectionId              = whatsAppParams.connectionId;
-        this.#connectionSocket          = whatsAppParams.connectionSocket;
-        this.#connectionState           = whatsAppParams.connectionState;
-        this.#connectionQrcode          = whatsAppParams.connectionQrcode;
-        this.#connectionAttempts        = whatsAppParams.connectionAttempts ?? 0;
+        this.#id              = whatsAppParams.id;
+        this.#socket          = whatsAppParams.socket;
+        this.#userId          = whatsAppParams.userId;
+        this.#state           = State.connecting;
+        this.#qrCode          = null;
+        this.#attempts        = 0;
+        this.#createdAt       = new Date();
+        this.#updatedAt       = null;
     }
 
-    get connectionId()                      : string {
-        return this.#connectionId;
+    get id()                      : string {
+        return this.#id;
     }
 
-    get connectionSocket()                  : WASocket {
-        return this.#connectionSocket;
+    get socket()                  : WASocket {
+        return this.#socket;
     }
 
-    get connectionState() {
-        return this.#connectionState;
+    get userId()                   : string {
+        return this.#userId
     }
 
-    set connectionState(value               : State) {
-        this.#connectionState = value;
+    get state()                     : State {
+        return this.#state;
     }
 
-    get connectionQrcode()                  : string | undefined {
-        return this.#connectionQrcode
+    set state(value               : State) {
+        this.#state = value;
     }
 
-    set connectionQrcode(qrcode             : string | undefined) {
-        this.#connectionQrcode = qrcode;
+    get qrCode()                  : string | null {
+        return this.#qrCode
     }
 
-    get connectionAttempts() {
-        return this.#connectionAttempts;
+    set qrCode(qrcode             : string | null) {
+        this.#qrCode = qrcode;
+    }
+
+    get attempts()                 : number {
+        return this.#attempts;
+    }
+
+    get createdAt ()                : Date {
+        return this.#createdAt;
+    }
+
+    get updatedAt () : Date | null {
+        return this.#updatedAt ?? null;
+    }
+
+    set updatedAt (updatedAt: Date) {
+        this.#updatedAt = updatedAt;
     }
 
     getAll() {
         return {
-            connectionId            : this.connectionId,
-            connectionQrcode        : this.connectionQrcode,
-            connectionAttempts      : this.connectionAttempts,
-            connectionSocket        : this.connectionSocket,
-            connectionState         : this.connectionState,
+            id              : this.id,
+            userId          : this.userId,
+            state           : this.state,
+            qrCode          : this.qrCode,
+            attempts        : this.attempts,
+            createdAt       : this.createdAt,
+            updatedAt       : this.updatedAt
         }
     }
 
-    incrementConnectionAttempts() {
-        this.#connectionAttempts++;
+    incrementAttempts() {
+        this.#attempts++;
     }
 
-    resetConnectionAttempts() {
-        this.#connectionAttempts = 0;
+    resetAttempts() {
+        this.#attempts = 0;
     }
-
-
 }

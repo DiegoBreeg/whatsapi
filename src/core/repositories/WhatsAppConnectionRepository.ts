@@ -1,10 +1,10 @@
 import { WhatsAppConnection } from "../entities/WhatsAppConnectionEntity";
 
 export interface WhatsAppConnectionRepository {
-    save  (whatsAppConnection  : WhatsAppConnection)                                      : void;
-    find  (connectionId        : string)                                                  : WhatsAppConnection | undefined;
-    update(connectionId        : string, whatsAppConnection: Partial<WhatsAppConnection>) : void;
-    remove(connectionId        : string)                                                  : void;
-    getAll()                                                                              : WhatsAppConnection[];
-    exists(connectionId        : string)                                                  : boolean;
+    save  (whatsAppConnection  : WhatsAppConnection)                            : WhatsAppConnection | null;
+    find  (id        : string)                                                  : WhatsAppConnection | null;
+    update(id        : string, whatsAppConnection: Partial<WhatsAppConnection>) : WhatsAppConnection | null;
+    remove(id        : string)                                                  : boolean;
+    getAll()                                                                    : WhatsAppConnection[];
+    exists(id        : string)                                                  : boolean;
 }

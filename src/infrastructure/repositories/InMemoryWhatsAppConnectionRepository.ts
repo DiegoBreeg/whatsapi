@@ -16,26 +16,32 @@ export class InMemoryWhatsAppConnectionRepository implements WhatsAppConnectionR
         return InMemoryWhatsAppConnectionRepository.instance;
     }
 
-    public save(connection: WhatsAppConnection): void {
-        this.connections.set(connection.connectionId, connection);
+    public save(connection: WhatsAppConnection): WhatsAppConnection | null {
+        this.connections.set(connection.id, connection);
+        return connection;
     }
 
-    public find(connectionId: string): WhatsAppConnection | undefined {
-        return this.connections.get(connectionId) || undefined;
+    public find(id: string): WhatsAppConnection | null {
+        return this.connections.get(id) || null;
     }
 
-    public update(connectionId: string, whatsAppConnection: Partial<WhatsAppConnection>): void {
+    public update(connectionId: string, whatsAppConnection: Partial<WhatsAppConnection>): WhatsAppConnection | null {
+        const connection = this.connections.get(connectionId);
 
-        const connection                        = this.connections.get(connectionId);
-        if (connection) {
-            connection.connectionState          = whatsAppConnection.connectionState  ?? connection.connectionState;
-            connection.connectionQrcode         = whatsAppConnection.connectionQrcode ?? connection.connectionQrcode;
-            this.connections.set(connectionId, connection);
-        }
+        if (!connection) {
+            return null;
+        };
+
+        connection.updatedAt        = new Date();
+        connection.state            = whatsAppConnection.state  ?? connection.state;
+        connection.qrCode           = whatsAppConnection.qrCode ?? connection.qrCode;
+        this.connections.set(connectionId, connection);
+
+        return connection;
     }
 
-    public remove(connectionId: string): void {
-        this.connections.delete(connectionId);
+    public remove(connectionId: string): boolean {
+        return this.connections.delete(connectionId);
     }
 
     public getAll(): WhatsAppConnection[] {
