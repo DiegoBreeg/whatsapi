@@ -6,12 +6,20 @@ export class Migration20250220222648 {
             id BINARY(16) NOT NULL,
             email VARCHAR(255) NOT NULL UNIQUE,
             hashed_password VARCHAR(128) NOT NULL UNIQUE,
+
+            created_by BINARY(16) NOT NULL,
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            updated_at DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-            deleted_at DATETIME NULL DEFAULT NULL,
+
             updated_by BINARY(16) NULL DEFAULT NULL,
+            updated_at DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+
+            deleted_by BINARY(16) NULL DEFAULT NULL,
+            deleted_at DATETIME NULL DEFAULT NULL,
+            is_deleted NOT NULL BOOLEAN DEFAULT FALSE,
+
             PRIMARY KEY (id),
-            INDEX idx_users_email (email)
+            INDEX idx_users_email (email),
+            INDEX idx_users_is_deleted (is_deleted)
         );`;
     };
 
