@@ -1,10 +1,10 @@
 import { UserEntity } from "../entities/UserEntity";
 
 export interface UserRepository {
-    save   (user     : UserEntity)                           : void;
-    find   (userId   : string)                               : Promise<UserEntity>;
-    update (userId   : string, user: Partial<UserEntity>)    : void;
-    remove (userId   : string)                               : void;
-    getAll ()                                                : UserEntity[];
-    exists (userId   : string)                               : boolean;
+    save   (user        : UserEntity)                               : Promise<UserEntity | null>
+    find   (id          : string)                                   : Promise<UserEntity | null>
+    update (id          : string, user: Partial<UserEntity>)        : Promise<UserEntity | null>
+    remove (id          : string)                                   : Promise<boolean>;
+    getAll ()                                                       : Promise< UserEntity[]>;
+    exists (id          : string)                                   : Promise<boolean>;
 }

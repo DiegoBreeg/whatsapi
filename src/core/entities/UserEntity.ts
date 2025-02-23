@@ -6,12 +6,12 @@ export type UserEntityParams = {
     createdBy           : string;
     createdAt           : Date;
 
-    updatedBy           : string;
-    updatedAt           : Date;
+    updatedBy?           : string   | null;
+    updatedAt?           : Date     | null;
 
-    deletedBy           : string;
-    deletedAt           : Date;
-    isDeleted           : boolean;
+    deletedBy?           : string   | null;
+    deletedAt?           : Date     | null;
+    isDeleted?           : boolean;
 };
 
 export class UserEntity {
@@ -22,11 +22,11 @@ export class UserEntity {
     #createdBy          : string;
     #createdAt          : Date;
 
-    #updatedBy          : string;
-    #updatedAt          : Date;
+    #updatedBy          : string    | null;
+    #updatedAt          : Date      | null;
 
-    #deletedBy          : string;
-    #deletedAt          : Date;
+    #deletedBy          : string    | null;
+    #deletedAt          : Date      | null;
     #isDeleted          : boolean;
 
     constructor (userParams: UserEntityParams) {
@@ -37,12 +37,12 @@ export class UserEntity {
     this.#createdBy         = userParams.createdBy;
     this.#createdAt         = userParams.createdAt;
 
-    this.#updatedBy         = userParams.updatedBy;
-    this.#updatedAt         = userParams.updatedAt;
+    this.#updatedBy         = userParams.updatedBy ?? null;
+    this.#updatedAt         = userParams.updatedAt ?? null;
 
-    this.#deletedBy         = userParams.deletedBy;
-    this.#deletedAt         = userParams.deletedAt;
-    this.#isDeleted         = userParams.isDeleted;
+    this.#deletedBy         = userParams.deletedBy ?? null;
+    this.#deletedAt         = userParams.deletedAt ?? null;
+    this.#isDeleted         = userParams.isDeleted ?? false;
     }
 
     get id             ()                       : string {
@@ -65,39 +65,39 @@ export class UserEntity {
         return this.#createdBy;
     }
 
-    set createdBy (createdBy                     : string) {
-        this.#createdBy = createdBy;
-    }
-
     get createdAt      ()                       : Date {
-        return this.#createdAt;
+        return new Date(this.#createdAt);
     }
 
-    get updatedBy      ()                       : string {
+    get updatedBy      ()                       : string | null {
         return this.#updatedBy;
     }
 
-    set updatedBy (updatedBy                     : string) {
+    set updatedBy (updatedBy                     : string | null) {
         this.#updatedBy = updatedBy;
     }
 
-    get updatedAt      ()                       : Date {
-        return this.#updatedAt;
+    get updatedAt      ()                       : Date | null {
+        return this.#updatedAt? new Date(this.#updatedAt): null;
     }
 
-    get deletedBy ()                            : string {
+    set updatedAt (updatedAt                    : Date | null) {
+        this.#updatedAt = updatedAt;
+    }
+
+    get deletedBy ()                            : string | null {
         return this.#deletedBy;
     }
 
-    set deletedBy (deletedBy                    : string) {
-        this.deletedBy = deletedBy;
+    set deletedBy (deletedBy                    : string | null) {
+        this.#deletedBy = deletedBy;
     }
 
-    get deletedAt      ()                       : Date {
-        return this.#deletedAt;
+    get deletedAt      ()                       : Date | null {
+        return this.#deletedAt? new Date(this.#deletedAt): null;
     }
 
-    set deletedAt (deletedAt                    : Date) {
+    set deletedAt (deletedAt                    : Date | null) {
         this.#deletedAt = deletedAt;
     }
 
