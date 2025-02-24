@@ -15,19 +15,19 @@ export type UserEntityParams = {
 };
 
 export class UserEntity {
-    #id                 : string;
-    #email              : string;
-    #hashedPassword     : string;
+    readonly #id                 : string;
+    readonly #email              : string;
+    #hashedPassword              : string;
 
-    #createdBy          : string;
-    #createdAt          : Date;
+    readonly #createdBy          : string;
+    readonly #createdAt          : Date;
 
-    #updatedBy          : string    | null;
-    #updatedAt          : Date      | null;
+    #updatedBy                   : string    | null;
+    #updatedAt                   : Date      | null;
 
-    #deletedBy          : string    | null;
-    #deletedAt          : Date      | null;
-    #isDeleted          : boolean;
+    #deletedBy                   : string    | null;
+    #deletedAt                   : Date      | null;
+    #isDeleted                   : boolean;
 
     constructor (userParams: UserEntityParams) {
     this.#id                = userParams.id;

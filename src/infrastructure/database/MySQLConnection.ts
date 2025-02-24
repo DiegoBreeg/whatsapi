@@ -25,12 +25,12 @@ export class MySQLConnection {
         return await this.pool.getConnection();
     }
 
-    public async query<T extends RowDataPacket[] | RowDataPacket[][] | ResultSetHeader>(
-        sql         : string,
-        params      ?: any[]
+    public async query<T extends RowDataPacket[] | ResultSetHeader>(
+        sql                 : string,
+        values?             : any[]
     ): Promise<T> {
-        const connection = await this.pool.getConnection();
-        const [rows] = await connection.query<T>(sql, params);
+        const connection    = await this.pool.getConnection();
+        const [rows]        = await connection.query<T>(sql, values);
         connection.release();
         return rows;
     }
