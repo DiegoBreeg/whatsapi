@@ -70,10 +70,13 @@ export class MySQLUserRepository implements UserRepository {
         return user;
     }
 
-    async find(
-            {id, isDeleted, isActive, ignoreStatus}
-            :{id: string, isDeleted?: boolean, isActive?: boolean, ignoreStatus?: boolean}
-        ): Promise<UserEntity | null> {
+    async find({id, isDeleted, isActive, ignoreStatus}:{
+        id                  : string,
+        isDeleted?          : boolean,
+        isActive?           : boolean,
+        ignoreStatus?       : boolean
+    })                      : Promise<UserEntity | null> {
+
         const conditions    = [];
         const values        = [];
 
@@ -138,9 +141,6 @@ export class MySQLUserRepository implements UserRepository {
             hashed_password     = ?,
             updated_by          = UUID_TO_BIN(?),
             updated_at          = ?,
-            deleted_by          = UUID_TO_BIN(?),
-            deleted_at          = ?,
-            is_deleted          = ?,
             is_active           = ?
             WHERE id            = UUID_TO_BIN(?)
         ;`;
@@ -149,9 +149,6 @@ export class MySQLUserRepository implements UserRepository {
             user.hashedPassword,
             user.updatedBy,
             user.updatedAt,
-            user.deletedBy,
-            user.deletedAt,
-            user.isDeleted,
             user.isActive,
             user.id
         ];
@@ -164,12 +161,86 @@ export class MySQLUserRepository implements UserRepository {
         return user;
     }
 
-    delete(id: string): Promise<boolean> {
-        throw new Error("Method not implemented.");
+    async delete({userId, deletedBy, deletedAt}: {
+        userId              : string,
+        deletedBy           : string,
+        deletedAt           : Date
+    })                      : Promise<boolean> {
+
+        const query =`
+        UPDATE users
+        SET
+            is_deleted = true,
+            deleted_by = UUID_TO_BIN(?),
+            deleted_at = ?
+        WHERE id = UUID_TO_BIN(?)`;
+
+        const values = [deletedBy, deletedAt, userId];
+        const resultSetHeader   = await this.database.query<ResultSetHeader>(query, values);
+        return Boolean(resultSetHeader.affectedRows);
     }
-    getAll(): Promise<UserEntity[]> {
-        throw new Error("Method not implemented.");
+
+    async findAll({isDeleted, isActive, ignoreStatus}:{
+        isDeleted?          : boolean,
+        isActive?           : boolean,
+        ignoreStatus?       : boolean
+    } = {})                      : Promise< UserEntity[] | null> {
+
+        const conditions    = [];
+        const values        = [];
+
+        if(!ignoreStatus) {
+            conditions.push("is_deleted = ?");
+            isDeleted !== undefined
+                ?values.push(isDeleted)
+                : values.push(false)
+
+            conditions.push("is_active = ?");
+            isActive !== undefined
+                ?values.push(isActive)
+                :values.push(true)
+        }
+
+        const query = `
+            SELECT
+                BIN_TO_UUID(id) as id,
+                email,
+                hashed_password,
+                BIN_TO_UUID(created_by) as created_by,
+                created_at,
+                BIN_TO_UUID(updated_by) as updated_by,
+                updated_at,
+                BIN_TO_UUID(deleted_by) as deleted_by,
+                deleted_at,
+                is_deleted,
+                is_active
+            FROM users
+            ${conditions.length > 0 ? "WHERE " + conditions.join(" AND "): ""}
+        `;
+
+        const userRows = await this.database.query<UserRow[]>(query, values);
+
+        if(userRows.length === 0) {
+            return null;
+        }
+
+        return userRows.map(row => {
+            return new UserEntity({
+                id                  : row.id,
+                email               : row.email,
+                hashedPassword      : row.hashed_password,
+                createdBy           : row.created_by,
+                createdAt           : row.created_at,
+                updatedBy           : row.updated_by,
+                updatedAt           : row.updated_at,
+                deletedBy           : row.deleted_by,
+                deletedAt           : row.deleted_at,
+                isDeleted           : row.is_deleted,
+                isActive            : row.is_active
+            });
+        })
     }
+
     exists(id: string): Promise<boolean> {
         throw new Error("Method not implemented.");
     }
@@ -179,13 +250,16 @@ export class MySQLUserRepository implements UserRepository {
     const uuidgenerator = new UUIDGeneratorServiceImp()
     const userRepository = new MySQLUserRepository(MySQLConnection.getInstance());
     const uuid = uuidgenerator.generate();
-    const user = await userRepository.find({
-        id: "0195382d-613e-72ae-a62a-bb9fe801533e"
-    });
 
-    /* const result = await userRepository.save(new UserEntity({
+    const user = await userRepository.findAll();
+
+    /* const user = await userRepository.find({
+        id: "0195394f-8760-71e9-b25a-a30d5b63fb87"
+    }); */
+
+    /* const response = await userRepository.save(new UserEntity({
         id: uuid,
-        email: "teste2@teste.com",
+        email: "teste4@teste.com",
         hashedPassword: "dskSsdaDFfsd",
         createdAt: new Date(),
         createdBy: uuid
@@ -194,9 +268,11 @@ export class MySQLUserRepository implements UserRepository {
         return;
     }
 
-    console.log(user.updatedAt);
+    user.updatedBy = "0195394f-6ed5-75be-a3df-462714791173";
     user.updatedAt = new Date();
+    user.isActive = false;
     const response = await userRepository.update(user);
 
-    console.log(response?.updatedAt);
+
+    console.log(response);
 })();
