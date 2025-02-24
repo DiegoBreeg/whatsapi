@@ -12,6 +12,7 @@ export type UserEntityParams = {
     deletedBy?           : string   | null;
     deletedAt?           : Date     | null;
     isDeleted?           : boolean;
+    isActive?            : boolean;
 };
 
 export class UserEntity {
@@ -28,6 +29,7 @@ export class UserEntity {
     #deletedBy                   : string    | null;
     #deletedAt                   : Date      | null;
     #isDeleted                   : boolean;
+    #isActive                    : boolean;
 
     constructor (userParams: UserEntityParams) {
     this.#id                = userParams.id;
@@ -43,6 +45,7 @@ export class UserEntity {
     this.#deletedBy         = userParams.deletedBy ?? null;
     this.#deletedAt         = userParams.deletedAt ?? null;
     this.#isDeleted         = userParams.isDeleted ?? false;
+    this.#isActive          = userParams.isActive  ?? true;
     }
 
     get id             ()                       : string {
@@ -107,5 +110,13 @@ export class UserEntity {
 
     set isDeleted (isDeleted                    : boolean) {
         this.#isDeleted = isDeleted;
+    }
+
+    get isActive ()                             : boolean {
+        return this.#isActive;
+    }
+
+    set isActive (isActive                      : boolean) {
+        this.#isActive = isActive;
     }
 };

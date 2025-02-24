@@ -15,6 +15,7 @@ export interface UserRow extends RowDataPacket {
     deleted_by          : string  | null;
     deleted_at          : Date    | null;
     is_deleted          : boolean;
+    is_active           : boolean;
 }
 
 export class MySQLUserRepository implements UserRepository {
@@ -32,7 +33,8 @@ export class MySQLUserRepository implements UserRepository {
                 updated_at,
                 deleted_by,
                 deleted_at,
-                is_deleted
+                is_deleted,
+                is_active
             )
             VALUES (
                 UUID_TO_BIN(?),
@@ -43,6 +45,7 @@ export class MySQLUserRepository implements UserRepository {
                 UUID_TO_BIN(?),
                 ?,
                 UUID_TO_BIN(?),
+                ?,
                 ?,
                 ?
             );`;
@@ -56,7 +59,8 @@ export class MySQLUserRepository implements UserRepository {
             user.updatedAt,
             user.deletedBy,
             user.deletedAt,
-            user.isDeleted
+            user.isDeleted,
+            user.isActive
         ];
 
         const resultSetHeader = await this.database.query<ResultSetHeader>(query, values);
@@ -66,7 +70,28 @@ export class MySQLUserRepository implements UserRepository {
         return user;
     }
 
-    async find(id: string): Promise<UserEntity | null> {
+    async find(
+            {id, isDeleted, isActive, ignoreStatus}
+            :{id: string, isDeleted?: boolean, isActive?: boolean, ignoreStatus?: boolean}
+        ): Promise<UserEntity | null> {
+        const conditions    = [];
+        const values        = [];
+
+        conditions.push("id = UUID_TO_BIN(?)");
+        values.push(id);
+
+        if(!ignoreStatus) {
+            conditions.push("is_deleted = ?");
+            isDeleted !== undefined
+                ?values.push(isDeleted)
+                : values.push(false)
+
+            conditions.push("is_active = ?");
+            isActive !== undefined
+                ?values.push(isActive)
+                :values.push(true)
+        }
+
         const query = `
             SELECT
                 BIN_TO_UUID(id) as id,
@@ -78,19 +103,19 @@ export class MySQLUserRepository implements UserRepository {
                 updated_at,
                 BIN_TO_UUID(deleted_by) as deleted_by,
                 deleted_at,
-                is_deleted
+                is_deleted,
+                is_active
             FROM users
-            WHERE users.is_deleted = FALSE
-            AND users.id = UUID_TO_BIN(?);
+            ${conditions.length > 0 ? "WHERE " + conditions.join(" AND "): ""}
+            LIMIT 1;
         `;
-        const values            = [id];
-        const row = await this.database.query<UserRow[]>(query, values);
 
-        if(row.length === 0 ) {
+        const [userRow] = await this.database.query<UserRow[]>(query, values);
+
+        if(!userRow) {
             return null;
         }
 
-        const userRow = row[0];
         return new UserEntity({
             id                  : userRow.id,
             email               : userRow.email,
@@ -101,31 +126,45 @@ export class MySQLUserRepository implements UserRepository {
             updatedAt           : userRow.updated_at,
             deletedBy           : userRow.deleted_by,
             deletedAt           : userRow.deleted_at,
-            isDeleted           : userRow.is_deleted
+            isDeleted           : userRow.is_deleted,
+            isActive            : userRow.is_active
         });
     }
 
-    update(id: string, user: Partial<UserEntity>): Promise<UserEntity |null> {
+    async update(user: UserEntity): Promise<UserEntity |null> {
         const query = `
-            UPDATER users
-            SET updated_by = ?,
-                updated_at = ?,
-                deleted_by = ?,
-                deleted_at = ?,
-                is_deleted = ?,
-        `;
-        const params = [
+        UPDATE users
+        SET
+            hashed_password     = ?,
+            updated_by          = UUID_TO_BIN(?),
+            updated_at          = ?,
+            deleted_by          = UUID_TO_BIN(?),
+            deleted_at          = ?,
+            is_deleted          = ?,
+            is_active           = ?
+            WHERE id            = UUID_TO_BIN(?)
+        ;`;
+
+        const values = [
+            user.hashedPassword,
             user.updatedBy,
             user.updatedAt,
             user.deletedBy,
             user.deletedAt,
-            user.isDeleted
+            user.isDeleted,
+            user.isActive,
+            user.id
         ];
 
-        this.database.query(query, params);
-        throw new Error("Method not implemented.");
+        const resultSetHeader = await this.database.query<ResultSetHeader>(query, values);
+        if(resultSetHeader.affectedRows < 1) {
+            return null;
+        }
+
+        return user;
     }
-    remove(id: string): Promise<boolean> {
+
+    delete(id: string): Promise<boolean> {
         throw new Error("Method not implemented.");
     }
     getAll(): Promise<UserEntity[]> {
@@ -140,19 +179,24 @@ export class MySQLUserRepository implements UserRepository {
     const uuidgenerator = new UUIDGeneratorServiceImp()
     const userRepository = new MySQLUserRepository(MySQLConnection.getInstance());
     const uuid = uuidgenerator.generate();
-    /* const result = await userRepository.find("0195358f-3663-769a-aed1-c69eac6b208e");
-    if(!result) {
-        return;
-    } */
+    const user = await userRepository.find({
+        id: "0195382d-613e-72ae-a62a-bb9fe801533e"
+    });
 
-    const result = await userRepository.save(new UserEntity({
+    /* const result = await userRepository.save(new UserEntity({
         id: uuid,
-        email: "asdaasadsfdfsdffdf",
-        hashedPassword: "dskSDFfsd",
+        email: "teste2@teste.com",
+        hashedPassword: "dskSsdaDFfsd",
         createdAt: new Date(),
         createdBy: uuid
-    }));
+    })); */
+    if(!user) {
+        return;
+    }
 
-    console.log(`uuid gerado: ${uuid}`);
-    console.log(result?.updatedBy);
+    console.log(user.updatedAt);
+    user.updatedAt = new Date();
+    const response = await userRepository.update(user);
+
+    console.log(response?.updatedAt);
 })();

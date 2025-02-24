@@ -16,10 +16,12 @@ export class Migration20250220222648 {
             deleted_by BINARY(16) NULL DEFAULT NULL,
             deleted_at DATETIME NULL DEFAULT NULL,
             is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+            is_active BOOLEAN NOT NULL DEFAULT TRUE,
 
             PRIMARY KEY (id),
             INDEX idx_users_email (email),
-            INDEX idx_users_is_deleted (is_deleted)
+            INDEX idx_users_is_deleted (is_deleted),
+            INDEX idx_users_is_active (is_active)
         );`;
     };
 
