@@ -2,7 +2,7 @@ import { UserEntity }                           from "../../core/entities/UserEn
 import { UserRepository }                       from "../../core/repositories/UserRepository";
 import { MySQLConnection }                      from "../database/MySQLConnection";
 import { ResultSetHeader, RowDataPacket }       from 'mysql2/promise';
-import { UUIDGeneratorServiceImp }              from "../services/UUIDGeneratorServiceImp";
+import { UUIDGeneratorServiceImp }              from "../services/UUIDGeneratorService";
 
 export interface UserRow extends RowDataPacket {
     id                  : string;

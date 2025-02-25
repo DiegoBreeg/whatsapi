@@ -7,7 +7,7 @@ import fs                                                                       
 import { WhatsAppConnectionRepository }                                                         from "../../core/repositories/WhatsAppConnectionRepository";
 import { State, WhatsAppConnection }                                                            from "../../core/entities/WhatsAppConnectionEntity";
 
-export class WhatsappSocketManagerBaileys implements WhatsAppSocketManagerService {
+export class BaileysWhatsappSocketManager implements WhatsAppSocketManagerService {
     #whatsAppConnectionRepository: WhatsAppConnectionRepository
 
     constructor(whatsAppConnectionRepository: WhatsAppConnectionRepository) {
