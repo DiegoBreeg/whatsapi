@@ -1,4 +1,5 @@
 import { HashService } from "../../core/services/HashService";
+import bcrypt from "bcrypt"
 
 export class BcryptHashService implements HashService {
     readonly #saltRounds: number;
@@ -7,12 +8,13 @@ export class BcryptHashService implements HashService {
         this.#saltRounds = saltRounds;
     }
 
-    hash(password: string): Promise<string> {
-        throw new Error("Method not implemented.");
+    async hash(password: string): Promise<string> {
+        const salt = await bcrypt.genSalt(this.#saltRounds);
+        return await bcrypt.hash(password, salt);
     }
 
-    verify(password: string, hashedPassword: string): Promise<boolean> {
-        throw new Error("Method not implemented.");
+    async verify(password: string, hashedPassword: string): Promise<boolean> {
+        return await bcrypt.compare(password, hashedPassword);
     }
 
 }
