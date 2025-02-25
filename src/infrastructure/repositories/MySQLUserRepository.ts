@@ -2,7 +2,7 @@ import { UserEntity }                           from "../../core/entities/UserEn
 import { UserRepository }                       from "../../core/repositories/UserRepository";
 import { MySQLConnection }                      from "../database/MySQLConnection";
 import { ResultSetHeader, RowDataPacket }       from 'mysql2/promise';
-import { UUIDGeneratorServiceImp }              from "../services/UUIDGeneratorService";
+import { UuidV7Service }                        from "../services/UuidV7Service";
 
 export interface UserRow extends RowDataPacket {
     id                  : string;
@@ -247,7 +247,7 @@ export class MySQLUserRepository implements UserRepository {
 }
 
 (async ()=> {
-    const uuidgenerator = new UUIDGeneratorServiceImp()
+    const uuidgenerator = new UuidV7Service();
     const userRepository = new MySQLUserRepository(MySQLConnection.getInstance());
     const uuid = uuidgenerator.generate();
     

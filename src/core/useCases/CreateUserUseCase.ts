@@ -1,8 +1,8 @@
 import { MySQLConnection } from "../../infrastructure/database/MySQLConnection";
 import { MySQLUserRepository } from "../../infrastructure/repositories/MySQLUserRepository";
-import { UUIDGeneratorServiceImp } from "../../infrastructure/services/UUIDGeneratorService";
+import { UuidV7Service } from "../../infrastructure/services/UuidV7Service";
 import { UserRepository } from "../repositories/UserRepository";
-import { UUIDGeneratorService } from "../services/UUIDGeneratorService";
+import { UuidService } from "../services/UuidService";
 
 export type CreateUserInput = { }
 
@@ -11,7 +11,7 @@ export type CreateUserOutput = { }
 export class CreateUserUseCase {
     constructor(
         private readonly userRepository: UserRepository,
-        private readonly uuidGenerator: UUIDGeneratorService
+        private readonly uuidGenerator: UuidService
     ) { }
 
     execute(params: CreateUserInput = {}): CreateUserOutput {
@@ -22,7 +22,7 @@ export class CreateUserUseCase {
 }
 
 const userRepository = new MySQLUserRepository(MySQLConnection.getInstance());
-const uuidGenerator = new UUIDGeneratorServiceImp();
+const uuidGenerator = new UuidV7Service();
 const createUser = new CreateUserUseCase(userRepository, uuidGenerator);
 
 createUser.execute();

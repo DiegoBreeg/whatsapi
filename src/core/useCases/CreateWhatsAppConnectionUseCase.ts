@@ -1,7 +1,7 @@
 import { State, WhatsAppConnection }                    from "../entities/WhatsAppConnectionEntity";
 import { CustomError, CustomErrorStatusCodeMessage }    from "../errors/CustomError";
 import { WhatsAppConnectionRepository }                 from "../repositories/WhatsAppConnectionRepository";
-import { UUIDGeneratorService }                         from "../services/UUIDGeneratorService";
+import { UuidService }                                  from "../services/UuidService";
 import { WhatsAppSocketManagerService }                 from "../services/WhatsAppSocketManagerService";
 
 type CreateWhatsAppConnectionInput = {
@@ -17,11 +17,11 @@ export class CreateWhatsAppConnectionUseCase {
     constructor (
         private readonly whatsAppConnectionRepository   : WhatsAppConnectionRepository,
         private readonly whatsappSocketManager          : WhatsAppSocketManagerService,
-        private readonly uuidGenerator                  : UUIDGeneratorService
+        private readonly uuidService                  : UuidService
     ) { }
 
     async execute(params: string): Promise<CreateWhatsAppConnectionOutput> {
-        const connectionId = this.uuidGenerator.generate();
+        const connectionId = this.uuidService.generate();
 
         const alreadyExists = this.whatsAppConnectionRepository.exists(connectionId);
         if (alreadyExists) {
@@ -35,7 +35,7 @@ export class CreateWhatsAppConnectionUseCase {
         const whatsAppConnection = new WhatsAppConnection({
            id: connectionId,
            socket,
-           userId: this.uuidGenerator.generate()
+           userId: this.uuidService.generate()
         });
 
         const isSaved = this.whatsAppConnectionRepository.save(whatsAppConnection);
