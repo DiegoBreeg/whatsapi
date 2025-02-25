@@ -1,9 +1,9 @@
 import makeWASocket, { DisconnectReason, useMultiFileAuthState, AuthenticationState, WASocket } from "@whiskeysockets/baileys";
 
 export enum State {
-    open                    = 'open',
     connecting              = 'connecting',
-    waitingForQRCodeScan    = 'waiting for qrcode scan'
+    waitingForQRCodeScan    = 'waiting for qrcode scan',
+    open                    = 'open',
 }
 
 export type WhatsAppConnectionParams = {
@@ -20,7 +20,7 @@ export type WhatsAppConnectionParams = {
 
 export class WhatsAppConnection {
     readonly #id            : string;
-    readonly #socket        : WASocket;
+    #socket                 : WASocket;
     readonly #userId        : string;
     #state                  : State;
     #qrCode                 : string | null;
@@ -46,6 +46,10 @@ export class WhatsAppConnection {
 
     get socket()                  : WASocket {
         return this.#socket;
+    }
+
+    set socket(socket               : WASocket) {
+        this.#socket = socket;
     }
 
     get userId()                   : string {

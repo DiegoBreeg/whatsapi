@@ -16,11 +16,13 @@ type CreateWhatsAppConnectionOutput = {
 export class CreateWhatsAppConnectionUseCase {
     constructor (
         private readonly whatsAppConnectionRepository   : WhatsAppConnectionRepository,
-        private readonly whatsappSocketManager       : WhatsAppSocketManagerService,
+        private readonly whatsappSocketManager          : WhatsAppSocketManagerService,
         private readonly uuidGenerator                  : UUIDGeneratorService
     ) { }
 
-    async execute(connectionId: string): Promise<CreateWhatsAppConnectionOutput> {
+    async execute(params: string): Promise<CreateWhatsAppConnectionOutput> {
+        const connectionId = this.uuidGenerator.generate();
+
         const alreadyExists = this.whatsAppConnectionRepository.exists(connectionId);
         if (alreadyExists) {
             throw new CustomError({
@@ -31,12 +33,18 @@ export class CreateWhatsAppConnectionUseCase {
 
         const socket = await this.whatsappSocketManager.createSocket(connectionId);
         const whatsAppConnection = new WhatsAppConnection({
-           id: this.uuidGenerator.generate(),
+           id: connectionId,
            socket,
            userId: this.uuidGenerator.generate()
         });
 
-        this.whatsAppConnectionRepository.save(whatsAppConnection);
+        const isSaved = this.whatsAppConnectionRepository.save(whatsAppConnection);
+        if (!isSaved) {
+            throw new CustomError({
+                message             : "Error when trying to save connection to repository",
+                statusCodeMessage   : CustomErrorStatusCodeMessage.InternalServerError
+            });
+        }
 
         return {
             message: "New whatsApp connection created",

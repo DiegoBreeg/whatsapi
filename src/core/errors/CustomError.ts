@@ -1,8 +1,9 @@
 export enum CustomErrorStatusCodeMessage {
-    Badrequest      = "Bad Request",
-    Forbidden       = "Forbidden",
-    Conflict        = "Conflict",
-    NotFound        = "Not Found"
+    Badrequest              = "Bad Request",
+    Forbidden               = "Forbidden",
+    Conflict                = "Conflict",
+    NotFound                = "Not Found",
+    InternalServerError     = "Internal Server Error"
 }
 
 export type CustomErrorParams = {
@@ -26,11 +27,12 @@ export class CustomError {
 
     private getStatusCode(customErrorStatusCodeMessage: CustomErrorStatusCodeMessage) {
         const statusCodeList = {
-            "Bad Request"       : 400,
-            "Unauthorized"      : 401,
-            "Forbidden"         : 403,
-            "Conflict"          : 409,
-            "Not Found"         : 404
+            "Bad Request"           : 400,
+            "Unauthorized"          : 401,
+            "Forbidden"             : 403,
+            "Conflict"              : 409,
+            "Not Found"             : 404,
+            "Internal Server Error" : 500
         }
 
         return statusCodeList[customErrorStatusCodeMessage];
