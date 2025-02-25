@@ -31,16 +31,16 @@ export class CreateWhatsAppConnectionUseCase {
 
         const socket = await this.whatsappSocketManager.createSocket(connectionId);
         const whatsAppConnection = new WhatsAppConnection({
-            id          : connectionId,
-            socket,
-            userId      : '123'
+           id: this.uuidGenerator.generate(),
+           socket,
+           userId: this.uuidGenerator.generate()
         });
 
         this.whatsAppConnectionRepository.save(whatsAppConnection);
 
         return {
-            message                 : "New whatsApp connection created",
-            whatsAppConnection      : whatsAppConnection.getAll(),
+            message: "New whatsApp connection created",
+            whatsAppConnection
         };
     }
 }

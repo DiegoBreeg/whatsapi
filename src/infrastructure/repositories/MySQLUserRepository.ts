@@ -184,7 +184,7 @@ export class MySQLUserRepository implements UserRepository {
         isDeleted?          : boolean,
         isActive?           : boolean,
         ignoreStatus?       : boolean
-    } = {})                      : Promise< UserEntity[] | null> {
+    } = {})                      : Promise< UserEntity[]> {
 
         const conditions    = [];
         const values        = [];
@@ -221,7 +221,7 @@ export class MySQLUserRepository implements UserRepository {
         const userRows = await this.database.query<UserRow[]>(query, values);
 
         if(userRows.length === 0) {
-            return null;
+            return [];
         }
 
         return userRows.map(row => {
@@ -250,8 +250,7 @@ export class MySQLUserRepository implements UserRepository {
     const uuidgenerator = new UUIDGeneratorServiceImp()
     const userRepository = new MySQLUserRepository(MySQLConnection.getInstance());
     const uuid = uuidgenerator.generate();
-
-    const user = await userRepository.findAll();
+    
 
     /* const user = await userRepository.find({
         id: "0195394f-8760-71e9-b25a-a30d5b63fb87"
@@ -264,15 +263,19 @@ export class MySQLUserRepository implements UserRepository {
         createdAt: new Date(),
         createdBy: uuid
     })); */
-    if(!user) {
-        return;
-    }
 
-    user.updatedBy = "0195394f-6ed5-75be-a3df-462714791173";
+
+    /* user.updatedBy = "0195394f-6ed5-75be-a3df-462714791173";
     user.updatedAt = new Date();
     user.isActive = false;
-    const response = await userRepository.update(user);
+    const response = await userRepository.update(user); */
 
-
-    console.log(response);
+    const user = await userRepository.findAll();
+    user?.forEach(({id, email, hashedPassword}: UserEntity) => {
+        console.log({
+            id,
+            email,
+            hashedPassword
+        })
+    })
 })();

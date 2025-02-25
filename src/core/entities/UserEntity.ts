@@ -1,10 +1,10 @@
 export type UserEntityParams = {
-    id                  : string;
-    email               : string;
-    hashedPassword      : string;
+    id                   : string;
+    email                : string;
+    hashedPassword       : string;
 
-    createdBy           : string;
-    createdAt           : Date;
+    createdBy            : string;
+    createdAt?           : Date;
 
     updatedBy?           : string   | null;
     updatedAt?           : Date     | null;
@@ -37,7 +37,7 @@ export class UserEntity {
     this.#hashedPassword    = userParams.hashedPassword;
 
     this.#createdBy         = userParams.createdBy;
-    this.#createdAt         = userParams.createdAt;
+    this.#createdAt         = userParams.createdAt ?? new Date();
 
     this.#updatedBy         = userParams.updatedBy ?? null;
     this.#updatedAt         = userParams.updatedAt ?? null;

@@ -5,7 +5,7 @@ export class UUIDGeneratorServiceImp implements UUIDGeneratorService {
 
     constructor(){}
     
-    public generate(){
+    public generate(): string{
         return uuidv7();
     }
 }

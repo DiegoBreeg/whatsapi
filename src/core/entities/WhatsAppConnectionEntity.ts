@@ -7,31 +7,37 @@ export enum State {
 }
 
 export type WhatsAppConnectionParams = {
-    id            : string;
-    socket        : WASocket;
-    userId        : string;
+    id              : string;
+    socket          : WASocket;
+    userId          : string;
+    state?          : State;
+    qrCode?         : string | null;
+    attempts?       : number;
+    createdAt?      : Date;
+    updatedAt?      : Date | null;
+
 }
 
 export class WhatsAppConnection {
-    #id             : string;
-    #socket         : WASocket;
-    #userId         : string;
-    #state          : State;
-    #qrCode         : string | null;
-    #attempts       : number;
-    #createdAt      : Date;
-    #updatedAt      : Date | null;
+    readonly #id            : string;
+    readonly #socket        : WASocket;
+    readonly #userId        : string;
+    #state                  : State;
+    #qrCode                 : string | null;
+    #attempts               : number;
+    #createdAt              : Date;
+    #updatedAt              : Date | null;
     
 
     constructor(whatsAppParams: WhatsAppConnectionParams) {
         this.#id              = whatsAppParams.id;
         this.#socket          = whatsAppParams.socket;
         this.#userId          = whatsAppParams.userId;
-        this.#state           = State.connecting;
-        this.#qrCode          = null;
-        this.#attempts        = 0;
-        this.#createdAt       = new Date();
-        this.#updatedAt       = null;
+        this.#state           = whatsAppParams.state        ?? State.connecting;
+        this.#qrCode          = whatsAppParams.qrCode       ?? null;
+        this.#attempts        = whatsAppParams.attempts     ?? 0;
+        this.#createdAt       = whatsAppParams.createdAt    ?? new Date();
+        this.#updatedAt       = whatsAppParams.updatedAt    ?? null;
     }
 
     get id()                      : string {
@@ -76,18 +82,6 @@ export class WhatsAppConnection {
 
     set updatedAt (updatedAt: Date) {
         this.#updatedAt = updatedAt;
-    }
-
-    getAll() {
-        return {
-            id              : this.id,
-            userId          : this.userId,
-            state           : this.state,
-            qrCode          : this.qrCode,
-            attempts        : this.attempts,
-            createdAt       : this.createdAt,
-            updatedAt       : this.updatedAt
-        }
     }
 
     incrementAttempts() {

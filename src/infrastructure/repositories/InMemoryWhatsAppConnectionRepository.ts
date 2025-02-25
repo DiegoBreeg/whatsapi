@@ -25,27 +25,16 @@ export class InMemoryWhatsAppConnectionRepository implements WhatsAppConnectionR
         return this.connections.get(id) || null;
     }
 
-    public update(connectionId: string, data: Partial<WhatsAppConnection>): WhatsAppConnection | null {
-        const connection = this.connections.get(connectionId);
-        if (!connection) {
-            return null;
-        };
-
-        connection.updatedAt        = new Date();
-        connection.state = data.state || connection.state;
-        connection.qrCode = "qrCode" in data
-            ? data.qrCode || null
-            : connection.qrCode;
-
-        this.connections.set(connectionId, connection);
+    public update(connection: WhatsAppConnection): WhatsAppConnection | null {
+        this.connections.set(connection.id, connection);
         return connection;
     }
 
-    public remove(connectionId: string): boolean {
+    public delete(connectionId: string): boolean {
         return this.connections.delete(connectionId);
     }
 
-    public getAll(): WhatsAppConnection[] {
+    public findAll(): WhatsAppConnection[] {
         return Array.from(this.connections.values());
     }
 

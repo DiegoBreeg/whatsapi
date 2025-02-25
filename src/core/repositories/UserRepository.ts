@@ -1,9 +1,7 @@
 import { UserEntity } from "../entities/UserEntity";
 
 export interface UserRepository {
-    save    (user:
-        UserEntity
-    ): Promise<UserEntity | null>;
+    save    (user: UserEntity): Promise<UserEntity | null>;
 
     find    (options: {
         id: string,
@@ -12,9 +10,7 @@ export interface UserRepository {
         ignoreStatus?   : boolean
     })                  : Promise<UserEntity | null>;
 
-    update  (user:
-        UserEntity
-    ): Promise<UserEntity | null>;
+    update  (user: UserEntity): Promise<UserEntity | null>;
 
     delete  (options: {
         userId          : string,
@@ -25,8 +21,8 @@ export interface UserRepository {
     findAll (options?: {
         isDeleted?          : boolean,
         isActive?           : boolean,
-        ignoreStatus?        : boolean
-    }| null)                      : Promise< UserEntity[] | null>;
+        ignoreStatus?       : boolean
+    })                      : Promise< UserEntity[]>;
 
     exists  (id: string): Promise<boolean>;
 }
