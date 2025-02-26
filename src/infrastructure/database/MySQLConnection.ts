@@ -21,7 +21,7 @@ export class MySQLConnection {
         return this.pool;
     }
 
-    public async getConnection(): Promise<Connection> {
+    public async getConnection(): Promise<mysql.PoolConnection> {
         return await this.pool.getConnection();
     }
 
@@ -29,13 +29,17 @@ export class MySQLConnection {
         sql                 : string,
         values?             : any[]
     ): Promise<T> {
-        const connection    = await this.pool.getConnection();
-        const [rows]        = await connection.query<T>(sql, values);
-        connection.release();
-        return rows;
+        const connection          = await this.getConnection();
+        try {
+            const [rows]          = await connection.query<T>(sql, values);
+            return rows;
+        } finally {
+            await connection.release();
+        }
     }
 
     public async close(): Promise<void> {
+        (await this.getConnection()).release();
         await this.pool.end();
     }
 

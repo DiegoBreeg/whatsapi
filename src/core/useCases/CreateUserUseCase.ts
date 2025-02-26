@@ -28,24 +28,43 @@ export class CreateUserUseCase {
         this.#hashService = hashService;
     }
 
-    execute(params: CreateUserInput): CreateUserOutput {
+    async execute({password}: CreateUserInput): Promise<CreateUserOutput> {
 
+        const isPasswordValid = this.validatePassword(password);
+        console.log(isPasswordValid);
 
         return {};
     }
+
+    private validatePassword(password: string): boolean {
+        const regex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?\d)(?=.*?[#?!@$%^&*-\.]).{8,}$/;
+        return regex.test(password);
+    }
+
+    private validateEmail(email: string): boolean {
+        const regex = "";
+        return false;
+    }
+
 }
 
-const userRepository = new MySQLUserRepository(MySQLConnection.getInstance());
-const uuidGenerator = new UuidV7Service();
-const hashService = new BcryptHashService
+(async () => {
+    const database = await MySQLConnection.getInstance();
 
-const createUser = new CreateUserUseCase(
-    userRepository,
-    uuidGenerator,
-    hashService
-);
+    const userRepository = await new MySQLUserRepository(database);
+    const uuidGenerator = await new UuidV7Service();
+    const hashService = await new BcryptHashService
 
-createUser.execute({
-    email: "diegobreeg@gmail.com",
-    password: "35264100",
-});
+    const createUser = await new CreateUserUseCase(
+        userRepository,
+        uuidGenerator,
+        hashService
+    );
+
+    await createUser.execute({
+        email: "diegobreeg@gmail.com",
+        password: "diego35264100",
+    });
+
+    await database.close();
+})()

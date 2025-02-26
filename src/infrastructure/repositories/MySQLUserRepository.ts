@@ -19,7 +19,7 @@ export interface UserRow extends RowDataPacket {
 }
 
 export class MySQLUserRepository implements UserRepository {
-    constructor(private readonly database: MySQLConnection) {}
+    constructor(private database: MySQLConnection) {}
 
     async save(user: UserEntity): Promise<UserEntity | null> {
         const query = `
